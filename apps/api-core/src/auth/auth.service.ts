@@ -1,7 +1,15 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Prisma } from '@prisma/client';
-import { BaseRole, CurrentUserContext, RoleScope, TenantContext } from '@aza8/core-domain';
+import {
+  BaseRole,
+  CurrentUserContext,
+  RoleScope,
+  TenantContext,
+  TenantMembership as DomainTenantMembership,
+  User as DomainUser,
+  UserStatus
+} from '@aza8/core-domain';
 
 import { PrismaService } from '../database/prisma.service.js';
 import { AppConfigService } from '../config/app-config.service.js';
@@ -67,11 +75,12 @@ export class AuthService {
         throw new UnauthorizedException('User not found');
       }
 
-      const memberships = this.filterMemberships(user.memberships, tenantContext);
-      const roles = memberships.map((membership) => membership.role.key as BaseRole);
+      const filteredMemberships = this.filterMemberships(user.memberships, tenantContext);
+      const memberships = this.normalizeMemberships(filteredMemberships);
+      const roles = memberships.map((membership) => membership.role.key);
 
       return {
-        user,
+        user: this.toDomainUser(user),
         memberships,
         tenantContext,
         roles
@@ -137,5 +146,32 @@ export class AuthService {
     }
 
     return memberships.filter((membership) => membership.tenantId === tenantContext.tenantId);
+  }
+
+  private normalizeMemberships(
+    memberships: (Prisma.TenantMembershipGetPayload<{ include: { role: true } }>)[]
+  ): DomainTenantMembership[] {
+    return memberships.map((membership) => ({
+      ...membership,
+      role: {
+        ...membership.role,
+        scope: membership.role.scope as RoleScope,
+        key: membership.role.key as BaseRole,
+        description: membership.role.description ?? undefined
+      }
+    }));
+  }
+
+  private toDomainUser(user: Prisma.UserGetPayload<{ include: { memberships: true } }>): DomainUser {
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      status: user.status as UserStatus,
+      authProvider: user.authProvider,
+      authProviderId: user.authProviderId,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
   }
 }

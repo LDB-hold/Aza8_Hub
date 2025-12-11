@@ -9,5 +9,8 @@
   },
   "dependencies": {
     "@aza8/core-domain": "workspace:*"
+  },
+  "devDependencies": {
+    "@aza8/tsconfig": "workspace:*"
   }
 }

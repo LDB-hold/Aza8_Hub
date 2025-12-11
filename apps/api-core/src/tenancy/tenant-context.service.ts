@@ -1,6 +1,6 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
+import { IncomingMessage } from 'http';
 import { TenantContext } from '@aza8/core-domain';
 
 const defaultContext: TenantContext = {
@@ -13,7 +13,7 @@ const defaultContext: TenantContext = {
 export class TenantContextService {
   constructor(
     @Inject(REQUEST)
-    private readonly request: Request & { tenantContext?: TenantContext }
+    private readonly request: IncomingMessage & { tenantContext?: TenantContext }
   ) {}
 
   setContext(context: TenantContext) {

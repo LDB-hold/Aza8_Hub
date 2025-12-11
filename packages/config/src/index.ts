@@ -13,7 +13,10 @@ const apiConfigSchema = z.object({
 
 const webConfigSchema = z.object({
   NODE_ENV: nodeEnvSchema.default('development'),
-  NEXT_PUBLIC_API_URL: z.string().url()
+  NEXT_PUBLIC_API_URL: z
+    .string()
+    .url()
+    .default('http://localhost:3001')
 });
 
 export interface ApiConfig {

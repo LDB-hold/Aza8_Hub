@@ -4,11 +4,18 @@ import {
   Injectable,
   UnauthorizedException
 } from '@nestjs/common';
-import { Request } from 'express';
+import { IncomingMessage, IncomingHttpHeaders } from 'http';
 
 import { TenantContextService } from '../../tenancy/tenant-context.service.js';
 import { AuthService } from '../auth.service.js';
 import { AuthenticatedRequest } from '../interfaces/auth-user.interface.js';
+
+type HttpRequest = IncomingMessage & {
+  headers: IncomingHttpHeaders & {
+    authorization?: string;
+  };
+  cookies?: Record<string, string>;
+};
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -18,7 +25,7 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<AuthenticatedRequest & Request>();
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest & HttpRequest>();
     const token = this.extractToken(request);
 
     if (!token) {
@@ -30,7 +37,7 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
-  private extractToken(request: Request): string | null {
+  private extractToken(request: HttpRequest): string | null {
     const header = request.headers['authorization'];
     if (typeof header === 'string' && header.startsWith('Bearer ')) {
       return header.substring(7);
