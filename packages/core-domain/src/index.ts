@@ -30,21 +30,25 @@ export interface User {
   updatedAt: Date;
 }
 
-export enum RoleScope {
-  GLOBAL_AZA8 = 'GLOBAL_AZA8',
-  TENANT = 'TENANT',
-  PLUGIN = 'PLUGIN'
-}
+export const RoleScope = {
+  GLOBAL_AZA8: 'GLOBAL_AZA8',
+  TENANT: 'TENANT',
+  PLUGIN: 'PLUGIN'
+} as const;
 
-export enum BaseRole {
-  AZA8_ADMIN = 'AZA8_ADMIN',
-  AZA8_ACCOUNT_MANAGER = 'AZA8_ACCOUNT_MANAGER',
-  AZA8_OPERATOR = 'AZA8_OPERATOR',
-  TENANT_OWNER = 'TENANT_OWNER',
-  TENANT_MANAGER = 'TENANT_MANAGER',
-  TENANT_MARKETING = 'TENANT_MARKETING',
-  TENANT_SUPPLIER = 'TENANT_SUPPLIER'
-}
+export type RoleScope = (typeof RoleScope)[keyof typeof RoleScope];
+
+export const BaseRole = {
+  AZA8_ADMIN: 'AZA8_ADMIN',
+  AZA8_ACCOUNT_MANAGER: 'AZA8_ACCOUNT_MANAGER',
+  AZA8_OPERATOR: 'AZA8_OPERATOR',
+  TENANT_OWNER: 'TENANT_OWNER',
+  TENANT_MANAGER: 'TENANT_MANAGER',
+  TENANT_MARKETING: 'TENANT_MARKETING',
+  TENANT_SUPPLIER: 'TENANT_SUPPLIER'
+} as const;
+
+export type BaseRole = (typeof BaseRole)[keyof typeof BaseRole];
 
 export interface Role {
   id: string;

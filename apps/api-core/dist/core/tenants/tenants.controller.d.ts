@@ -7,8 +7,8 @@ export declare class TenantsController {
         context: import("@aza8/core-domain").TenantContext;
     } | {
         tenant: {
-            id: string;
             slug: string;
+            id: string;
             name: string;
             status: string;
             plan: string;
@@ -16,8 +16,8 @@ export declare class TenantsController {
         context: import("@aza8/core-domain").TenantContext;
     }>;
     list(): Promise<{
-        id: string;
         slug: string;
+        id: string;
         name: string;
         status: string;
         plan: string;
