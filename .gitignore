@@ -1,0 +1,11 @@
+node_modules
+.pnpm-store
+pnpm-lock.yaml
+.next
+.dist
+.env
+.env.*
+.prisma
+.DS_Store
+coverage
+.build

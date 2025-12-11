@@ -1,0 +1,21 @@
+{
+  "name": "aza8-hub",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@8.15.4",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "format": "prettier --write .",
+    "postinstall": "pnpm prisma:generate",
+    "prisma:generate": "turbo run prisma:generate"
+  },
+  "devDependencies": {
+    "@types/node": "20.11.30",
+    "eslint": "8.57.0",
+    "prettier": "3.2.5",
+    "turbo": "1.13.3",
+    "typescript": "5.4.5"
+  }
+}

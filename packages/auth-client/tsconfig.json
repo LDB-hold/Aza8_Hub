@@ -1,0 +1,7 @@
+{
+  "extends": "@aza8/tsconfig/tsconfig.package",
+  "compilerOptions": {
+    "outDir": "dist"
+  },
+  "include": ["src"]
+}
