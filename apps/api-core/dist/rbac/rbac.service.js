@@ -82,15 +82,25 @@ let RbacService = class RbacService {
                 }
             }
         });
-        return memberships.map((membership) => ({
-            ...membership,
-            role: {
-                ...membership.role,
-                scope: membership.role.scope,
-                key: membership.role.key,
-                description: membership.role.description ?? undefined
-            }
-        }));
+        return memberships.map((membership) => {
+            const permissions = (membership.role.permissions ?? []).map((rolePermission) => ({
+                permission: {
+                    ...rolePermission.permission,
+                    key: rolePermission.permission.key,
+                    description: rolePermission.permission.description ?? undefined
+                }
+            }));
+            return {
+                ...membership,
+                role: {
+                    ...membership.role,
+                    permissions,
+                    scope: membership.role.scope,
+                    key: membership.role.key,
+                    description: membership.role.description ?? undefined
+                }
+            };
+        });
     }
     collectPermissions(memberships, tenantContext) {
         const scope = tenantContext.isHubRequest ? core_domain_1.RoleScope.GLOBAL_AZA8 : core_domain_1.RoleScope.TENANT;
