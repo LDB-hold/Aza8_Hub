@@ -18,7 +18,7 @@ const core_1 = require("@nestjs/core");
 const defaultContext = {
     tenantId: null,
     tenantSlug: null,
-    isHubRequest: false
+    isHubRequest: true
 };
 let TenantContextService = class TenantContextService {
     constructor(request) {
