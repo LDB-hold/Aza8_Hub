@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { requireSession } from '@lib/auth';
 import { getTenantContextFromHeaders } from '@lib/tenant';
 import { ToolCard, type Tool } from '@components/ToolCard';
@@ -16,8 +17,8 @@ const recentActivity = [
   { title: 'Request approved', by: 'ops@aza8.com', time: '1d ago' }
 ];
 
-export default function DashboardPage() {
-  const session = requireSession('/dashboard');
+export default async function DashboardPage() {
+  const session = await requireSession('/dashboard');
   const tenant = getTenantContextFromHeaders();
 
   return (
@@ -32,6 +33,28 @@ export default function DashboardPage() {
         {tools.map((tool) => (
           <ToolCard key={tool.name} tool={tool} />
         ))}
+      </section>
+
+      <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
+        <CardHeader>
+          <CardTitle>Navegação rápida</CardTitle>
+          <CardDescription>Acesse as principais áreas do portal</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+            <NavLink href="/dashboard" label="Dashboard" helper="Resumo e ferramentas" />
+            <NavLink href="/tools/tasks" label="Tasks" helper="Listas e status" />
+            <NavLink href="/tools/files" label="Files" helper="Uploads e versões" />
+            <NavLink href="/tools/requests" label="Requests" helper="Solicitações e aprovações" />
+            <NavLink href="/tools/reports" label="Reports" helper="Indicadores operacionais" />
+            <NavLink href="/team/members" label="Team" helper="Membros e papéis" />
+            <NavLink href="/team/invitations" label="Convites" helper="Convidar usuários" />
+            <NavLink href="/settings/profile" label="Perfil" helper="Dados pessoais e sessão" />
+            <NavLink href="/settings/organization" label="Organização" helper="Dados do cliente" />
+            <NavLink href="/settings/billing" label="Billing" helper="Plano e faturamento" />
+            <NavLink href="/audit" label="Audit" helper="Eventos registrados" />
+          </div>
+        </CardContent>
       </section>
 
       <section className="grid gap-4 lg:grid-cols-3">
@@ -62,11 +85,23 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-slate-700">
             <div className="flex justify-between"><span>Email</span><span className="font-medium">{session.user.email}</span></div>
-            <div className="flex justify-between"><span>Tenant</span><span className="font-medium">{session.tenantKey}</span></div>
+            <div className="flex justify-between"><span>Tenant</span><span className="font-medium">{tenant.tenantKey}</span></div>
             <div className="flex justify-between"><span>Area</span><span className="font-medium">{tenant.isHub ? 'Hub' : 'Portal'}</span></div>
           </CardContent>
         </Card>
       </section>
     </div>
+  );
+}
+
+function NavLink({ href, label, helper }: { href: string; label: string; helper: string }) {
+  return (
+    <Link
+      href={href}
+      className="flex flex-col rounded-lg border border-slate-200 px-4 py-3 text-sm transition hover:border-slate-300 hover:shadow-sm"
+    >
+      <span className="font-semibold text-slate-900">{label}</span>
+      <span className="text-xs text-slate-500">{helper}</span>
+    </Link>
   );
 }

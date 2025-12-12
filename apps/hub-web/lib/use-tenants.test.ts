@@ -47,7 +47,7 @@ test('define tenants após chamada bem sucedida', async () => {
 
   const state = createState({ error: new Error('existente') });
   const loadingUpdates: LoadingLog = [];
-  const api = { get: async () => tenants };
+  const api = { get: async () => tenants, post: async () => tenants[0] };
   const setters = createSetters(state, loadingUpdates);
 
   await fetchTenantsData(api, setters.setTenants, setters.setLoading, setters.setError);
@@ -61,7 +61,7 @@ test('define erro e limpa tenants quando a chamada falha', async () => {
   const expectedError = new Error('Falhou');
   const state = createState({ tenants: [{ id: '1', name: 'Old', slug: 'old', plan: 'free', status: 'inactive' }] });
   const loadingUpdates: LoadingLog = [];
-  const api = { get: async () => Promise.reject(expectedError) };
+  const api = { get: async () => Promise.reject(expectedError), post: async () => { throw expectedError; } };
   const setters = createSetters(state, loadingUpdates);
 
   await fetchTenantsData(api, setters.setTenants, setters.setLoading, setters.setError);
@@ -84,7 +84,8 @@ test('refresh volta a carregar e atualiza tenants', async () => {
     get: async () => {
       call += 1;
       return call === 1 ? firstTenants : updatedTenants;
-    }
+    },
+    post: async () => firstTenants[0]
   };
 
   const state = createState({ error: new Error('precisa atualizar') });

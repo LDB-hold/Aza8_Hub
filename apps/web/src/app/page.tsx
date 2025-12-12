@@ -6,8 +6,5 @@ export default function HomePage() {
   const hdrs = headers();
   const host = hdrs.get('host');
   const { isHub } = parseTenantFromHost(host);
-  if (isHub) {
-    redirect('/dashboard');
-  }
   redirect('/dashboard');
 }

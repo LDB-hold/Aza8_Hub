@@ -6,17 +6,39 @@
   ```
   postgresql://postgres:DqHG7CWKTg7nItMM@db.qcibldbkaezayxldrtuc.supabase.co:5432/postgres?sslmode=require
   ```
-- Os apps web podem continuar usando seus `.env` locais, mas não precisam de Postgres próprio.
-- Os apps `apps/hub-web` e `apps/portal-web` precisam de arquivos `.env` locais antes de rodar o `start.sh`.
-  - O script valida a existência de `apps/hub-web/.env` e `apps/portal-web/.env` logo no início.
-  - Não há arquivos `.env.example` nesses diretórios, então crie os `.env` manualmente conforme as variáveis necessárias.
+- O app web unificado (`apps/web`) usa `.env.example` como base (`NEXT_PUBLIC_API_URL`, `AUTH_MODE`, `COOKIE_DOMAIN` etc).
+- Ignore `apps/hub-web` e `apps/portal-web` (frontends antigos).
 
 ## Execução do monorepo
-1. Garanta que você está autenticado no Supabase (a instância já está exposta no host acima, sem necessidade de Docker local).
-2. Rode `./start.sh`. O script vai instalar dependências, gerar o Prisma Client e aplicar as migrations diretamente no banco remoto.
-3. Se não quiser rodar migrations (por exemplo, em ambientes compartilhados), execute `SKIP_MIGRATIONS=1 ./start.sh`.
+1. Garanta que você está autenticado no Supabase (instância remota, sem Docker local).
+2. Instale dependências e gere Prisma Client:
+   ```
+   pnpm install
+   pnpm prisma:generate
+   ```
+3. Aplique schema/seed no Postgres remoto:
+   ```
+   pnpm --filter @aza8/api-core prisma db push
+   pnpm --filter @aza8/api-core prisma db seed
+   ```
+4. Suba API e Web:
+   ```
+   pnpm --filter @aza8/api-core dev   # porta 3001
+   pnpm --filter @aza8/web dev        # porta 3000
+   ```
+5. Hosts locais (ajuste /etc/hosts):
+   ```
+   127.0.0.1 hub.localhost
+   127.0.0.1 alpha.localhost
+   127.0.0.1 beta.localhost
+   ```
+   - Hub: http://hub.localhost:3000
+   - Portal alpha: http://alpha.localhost:3000
+   - Portal beta: http://beta.localhost:3000
 
-> Importante: não suba nenhum container Postgres local – todo o fluxo de desenvolvimento usa a instância remota indicada.
+Se não quiser rodar migrations, use `SKIP_MIGRATIONS=1 ./start.sh` (opcional).
+
+> Importante: não suba container Postgres local – use a instância remota indicada.
 
 ## Tenancy: monitorar e endurecer
 - Ambiente API: ajuste `TENANCY_ENFORCEMENT_MODE` em `apps/api-core/.env` (padrão `warn`; use `strict` após validações).
