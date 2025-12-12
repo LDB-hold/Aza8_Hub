@@ -1,0 +1,96 @@
+name: build-and-push
+
+on:
+  push:
+    branches: [main, staging]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Tag da imagem (default: SHA)"
+        required: false
+        default: ""
+      run_migrations:
+        description: "Rodar prisma migrate deploy (somente workflow_dispatch)"
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: build-and-push-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: ${{ vars.REGISTRY != '' && vars.REGISTRY || 'ghcr.io' }}
+      IMAGE_NS: ${{ vars.IMAGE_NS != '' && vars.IMAGE_NS || 'aza8' }}
+      API_IMAGE: ${{ vars.API_IMAGE != '' && vars.API_IMAGE || 'aza8-api' }}
+      WEB_IMAGE: ${{ vars.WEB_IMAGE != '' && vars.WEB_IMAGE || 'aza8-web' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Definir IMAGE_TAG
+        run: |
+          TAG="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.image_tag != '' && github.event.inputs.image_tag || github.sha }}"
+          echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Login no registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME != '' && secrets.REGISTRY_USERNAME || github.actor }}
+          password: ${{ secrets.REGISTRY_PASSWORD != '' && secrets.REGISTRY_PASSWORD || secrets.GITHUB_TOKEN }}
+
+      - name: Instalar dependências
+        run: pnpm install
+
+      - name: Build web (validação)
+        run: pnpm turbo run build --filter=@aza8/web...
+
+      - name: Build e push API
+        run: |
+          docker build -f infra/docker/api-core.Dockerfile -t $REGISTRY/$IMAGE_NS/$API_IMAGE:$IMAGE_TAG .
+          docker push $REGISTRY/$IMAGE_NS/$API_IMAGE:$IMAGE_TAG
+
+      - name: Build e push Web
+        run: |
+          docker build -f infra/docker/web.Dockerfile -t $REGISTRY/$IMAGE_NS/$WEB_IMAGE:$IMAGE_TAG .
+          docker push $REGISTRY/$IMAGE_NS/$WEB_IMAGE:$IMAGE_TAG
+
+  migrate:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_migrations == true
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Instalar dependências da API
+        run: pnpm install --filter @aza8/api-core...
+
+      - name: Rodar migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: pnpm --filter @aza8/api-core prisma:migrate deploy
