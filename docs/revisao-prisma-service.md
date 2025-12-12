@@ -1,0 +1,5 @@
+# Itens de melhoria no `PrismaService`
+
+1. **Correção/robustez:** quando `tenantContext` está ausente, o middleware de tenancy apenas registra um aviso e prossegue (linhas 73-80), mesmo em modo estrito. Isso permite que consultas sensíveis aconteçam sem isolamento algum. Seria mais seguro lançar exceção quando `enforcementMode` estiver como `strict`, garantindo que nenhuma operação prossiga sem contexto de locatário definido.
+2. **Bug de dados em gravações:** `applyTenantIdToData` retorna apenas `{ tenantId }` quando `data` é `undefined` (linhas 208-221). Em operações de criação/atualização isso descarta silenciosamente todos os campos enviados, o que pode gerar payloads inválidos e erros difíceis de rastrear. O ideal é preservar o objeto original ou interromper a execução sinalizando que o corpo da requisição está vazio.
+3. **Limpeza/clareza de código:** o middleware de tenancy tipa `params` e `next` como `any` (linha 68), o que mascara contratos do Prisma e abre espaço para acessos incorretos a propriedades. Declarar explicitamente `params: Prisma.MiddlewareParams` e o tipo de `next` melhora a leitura, habilita autocompletar e evita bugs sutis ao refatorar.
