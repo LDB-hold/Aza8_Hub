@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 
 import { TenantContext } from '@aza8/core-domain';
 import { AppConfigService } from '../config/app-config.service.js';
@@ -65,7 +65,10 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     await this.$disconnect();
   }
 
-  private async tenancyMiddleware(params: any, next: (params: any) => Promise<unknown>) {
+  private async tenancyMiddleware(
+    params: Prisma.MiddlewareParams,
+    next: (params: Prisma.MiddlewareParams) => Promise<unknown>
+  ) {
     if (!this.isTenantScopedModel(params.model)) {
       return next(params);
     }
@@ -73,9 +76,11 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     const tenantContext = this.tenantContextStore.getContext();
 
     if (!tenantContext) {
-      this.logger.warn(
-        `Tenant context missing for model ${params.model} action ${params.action}; skipping enforcement`
-      );
+      const message = `Tenant context missing for model ${params.model} action ${params.action}`;
+      if (this.enforcementMode === 'strict') {
+        throw new Error(`${message}; enforcement mode is strict`);
+      }
+      this.logger.warn(`${message}; skipping enforcement`);
       return next(params);
     }
 
@@ -127,14 +132,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     const scopedArgs = args ? { ...args } : {};
 
     if (action === 'createMany') {
-      scopedArgs.data = this.applyTenantIdToData(scopedArgs.data, tenantId);
+      scopedArgs.data = this.applyTenantIdToData(scopedArgs.data, tenantId, model, action);
       return scopedArgs;
     }
 
     if (action === 'upsert') {
       scopedArgs.where = this.applyScopedUniqueWhere(scopedArgs.where, tenantContext, model, action);
-      scopedArgs.create = this.applyTenantIdToData(scopedArgs.create, tenantId);
-      scopedArgs.update = this.applyTenantIdToData(scopedArgs.update, tenantId);
+      scopedArgs.create = this.applyTenantIdToData(scopedArgs.create, tenantId, model, action);
+      scopedArgs.update = this.applyTenantIdToData(scopedArgs.update, tenantId, model, action);
       return scopedArgs;
     }
 
@@ -147,7 +152,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     }
 
     if (scopedArgs.data !== undefined) {
-      scopedArgs.data = this.applyTenantIdToData(scopedArgs.data, tenantId);
+      scopedArgs.data = this.applyTenantIdToData(scopedArgs.data, tenantId, model, action);
     }
 
     return scopedArgs;
@@ -205,9 +210,16 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     return scopedArgs;
   }
 
-  private applyTenantIdToData(data: Record<string, any> | undefined, tenantId: string) {
-    if (!data) {
-      return { tenantId };
+  private applyTenantIdToData(
+    data: Record<string, any> | null | undefined,
+    tenantId: string,
+    model: string,
+    action: PrismaAction
+  ) {
+    if (data === undefined || data === null) {
+      throw new Error(
+        `Cannot apply tenantId: data payload is missing for tenant-scoped write on ${model}.${action}`
+      );
     }
 
     if (Array.isArray(data)) {
@@ -253,7 +265,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     return undefined;
   }
 
-  private logHubAccess(params: any, tenantContext: TenantContext) {
+  private logHubAccess(params: Prisma.MiddlewareParams, tenantContext: TenantContext) {
     const whereTenant = this.extractTenantId(params.args?.where);
     if (!whereTenant) {
       this.logger.debug(
