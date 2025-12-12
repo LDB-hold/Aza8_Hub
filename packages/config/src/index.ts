@@ -4,11 +4,14 @@ const nodeEnvSchema = z.enum(['development', 'test', 'production']);
 
 export type NodeEnv = z.infer<typeof nodeEnvSchema>;
 
+const tenancyEnforcementSchema = z.enum(['warn', 'strict']).default('warn');
+
 const apiConfigSchema = z.object({
   NODE_ENV: nodeEnvSchema.default('development'),
   PORT: z.string().default('3000'),
   DATABASE_URL: z.string().min(1),
-  AUTH_SECRET: z.string().min(32, 'AUTH_SECRET must be at least 32 characters')
+  AUTH_SECRET: z.string().min(32, 'AUTH_SECRET must be at least 32 characters'),
+  TENANCY_ENFORCEMENT_MODE: tenancyEnforcementSchema
 });
 
 const webConfigSchema = z.object({
@@ -24,6 +27,7 @@ export interface ApiConfig {
   port: number;
   databaseUrl: string;
   authSecret: string;
+  tenancyEnforcementMode: 'warn' | 'strict';
 }
 
 export interface WebConfig {
@@ -47,7 +51,8 @@ export const loadApiConfig = (env: NodeJS.ProcessEnv = process.env): ApiConfig =
     env: parsed.NODE_ENV,
     port: Number(parsed.PORT),
     databaseUrl: parsed.DATABASE_URL,
-    authSecret: parsed.AUTH_SECRET
+    authSecret: parsed.AUTH_SECRET,
+    tenancyEnforcementMode: parsed.TENANCY_ENFORCEMENT_MODE
   };
 };
 

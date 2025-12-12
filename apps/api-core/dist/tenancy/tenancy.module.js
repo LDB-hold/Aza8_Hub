@@ -11,6 +11,7 @@ const common_1 = require("@nestjs/common");
 const tenant_context_service_js_1 = require("./tenant-context.service.js");
 const tenancy_service_js_1 = require("./tenancy.service.js");
 const tenancy_middleware_js_1 = require("./tenancy.middleware.js");
+const tenant_context_store_js_1 = require("./tenant-context.store.js");
 let TenancyModule = class TenancyModule {
     configure(consumer) {
         consumer.apply(tenancy_middleware_js_1.TenancyMiddleware).forRoutes('*');
@@ -18,9 +19,10 @@ let TenancyModule = class TenancyModule {
 };
 exports.TenancyModule = TenancyModule;
 exports.TenancyModule = TenancyModule = __decorate([
+    (0, common_1.Global)(),
     (0, common_1.Module)({
-        providers: [tenant_context_service_js_1.TenantContextService, tenancy_service_js_1.TenancyService],
-        exports: [tenant_context_service_js_1.TenantContextService, tenancy_service_js_1.TenancyService]
+        providers: [tenant_context_service_js_1.TenantContextService, tenancy_service_js_1.TenancyService, tenant_context_store_js_1.TenantContextStore],
+        exports: [tenant_context_service_js_1.TenantContextService, tenancy_service_js_1.TenancyService, tenant_context_store_js_1.TenantContextStore]
     })
 ], TenancyModule);
 //# sourceMappingURL=tenancy.module.js.map

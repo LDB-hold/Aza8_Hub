@@ -12,21 +12,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TenancyMiddleware = void 0;
 const common_1 = require("@nestjs/common");
 const tenancy_service_js_1 = require("./tenancy.service.js");
+const tenant_context_store_js_1 = require("./tenant-context.store.js");
 let TenancyMiddleware = class TenancyMiddleware {
-    constructor(tenancyService) {
+    constructor(tenancyService, tenantContextStore) {
         this.tenancyService = tenancyService;
+        this.tenantContextStore = tenantContextStore;
     }
     async use(req, _res, next) {
         const forwarded = req.headers['x-forwarded-host'];
         const hostHeader = Array.isArray(forwarded) ? forwarded[0] : forwarded;
         const host = hostHeader || req.headers.host;
         req.tenantContext = await this.tenancyService.resolveContext(host);
-        next();
+        return this.tenantContextStore.runWithContext(req.tenantContext, () => next());
     }
 };
 exports.TenancyMiddleware = TenancyMiddleware;
 exports.TenancyMiddleware = TenancyMiddleware = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [tenancy_service_js_1.TenancyService])
+    __metadata("design:paramtypes", [tenancy_service_js_1.TenancyService,
+        tenant_context_store_js_1.TenantContextStore])
 ], TenancyMiddleware);
 //# sourceMappingURL=tenancy.middleware.js.map

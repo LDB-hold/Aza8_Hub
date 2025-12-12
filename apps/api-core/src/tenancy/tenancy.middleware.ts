@@ -3,6 +3,7 @@ import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from 'http';
 import { TenantContext } from '@aza8/core-domain';
 
 import { TenancyService } from './tenancy.service.js';
+import { TenantContextStore } from './tenant-context.store.js';
 
 type RequestWithContext = IncomingMessage & {
   headers: IncomingHttpHeaders & { host?: string };
@@ -14,7 +15,10 @@ type NextFunction = (err?: unknown) => void;
 
 @Injectable()
 export class TenancyMiddleware implements NestMiddleware {
-  constructor(private readonly tenancyService: TenancyService) {}
+  constructor(
+    private readonly tenancyService: TenancyService,
+    private readonly tenantContextStore: TenantContextStore
+  ) {}
 
   async use(req: RequestWithContext, _res: Response, next: NextFunction) {
     const forwarded = req.headers['x-forwarded-host'];
@@ -22,6 +26,6 @@ export class TenancyMiddleware implements NestMiddleware {
     const host = hostHeader || req.headers.host;
 
     req.tenantContext = await this.tenancyService.resolveContext(host as string | undefined);
-    next();
+    return this.tenantContextStore.runWithContext(req.tenantContext, () => next());
   }
 }

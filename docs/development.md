@@ -17,3 +17,10 @@
 3. Se não quiser rodar migrations (por exemplo, em ambientes compartilhados), execute `SKIP_MIGRATIONS=1 ./start.sh`.
 
 > Importante: não suba nenhum container Postgres local – todo o fluxo de desenvolvimento usa a instância remota indicada.
+
+## Tenancy: monitorar e endurecer
+- Ambiente API: ajuste `TENANCY_ENFORCEMENT_MODE` em `apps/api-core/.env` (padrão `warn`; use `strict` após validações).
+- Fluxo recomendado:
+  1. Inicie em `warn` e acompanhe os logs do `TenancyMiddleware` para detectar rotas que ainda não aplicam o contexto de tenant.
+  2. Corrija os pontos sinalizados até os warnings cessarem.
+  3. Mude para `TENANCY_ENFORCEMENT_MODE=strict` para bloquear requisições sem contexto de tenant válido.

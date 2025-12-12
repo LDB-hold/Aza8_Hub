@@ -13,6 +13,8 @@ const rbac_module_js_1 = require("../rbac/rbac.module.js");
 const tenancy_module_js_1 = require("../tenancy/tenancy.module.js");
 const tenants_controller_js_1 = require("./tenants/tenants.controller.js");
 const tenants_service_js_1 = require("./tenants/tenants.service.js");
+const tenant_membership_repository_js_1 = require("./tenants/tenant-membership.repository.js");
+const tenant_plugin_repository_js_1 = require("./tenants/tenant-plugin.repository.js");
 const me_controller_js_1 = require("./me/me.controller.js");
 let CoreDomainModule = class CoreDomainModule {
 };
@@ -21,7 +23,7 @@ exports.CoreDomainModule = CoreDomainModule = __decorate([
     (0, common_1.Module)({
         imports: [auth_module_js_1.AuthModule, rbac_module_js_1.RbacModule, tenancy_module_js_1.TenancyModule],
         controllers: [me_controller_js_1.MeController, tenants_controller_js_1.TenantsController],
-        providers: [tenants_service_js_1.TenantsService]
+        providers: [tenants_service_js_1.TenantsService, tenant_membership_repository_js_1.TenantMembershipRepository, tenant_plugin_repository_js_1.TenantPluginRepository]
     })
 ], CoreDomainModule);
 //# sourceMappingURL=core-domain.module.js.map

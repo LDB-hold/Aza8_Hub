@@ -11,6 +11,12 @@
 3. Business services (TenantsService, future PluginService, etc.) never accept arbitrary tenant IDs—they always read from `TenantContextService`.
 4. `AuthGuard` filters memberships to the active tenant (or global roles if hub) so RBAC decisions are accurate.
 
+## Enforcement modes
+- Controlled by `TENANCY_ENFORCEMENT_MODE` (`warn` by default, `strict` when fully validated).
+- `warn`: middleware logs any missing/invalid tenant context but lets the request through so gaps can be detected without blocking users.
+- `strict`: the same checks become blocking—requests that do not satisfy tenancy rules are rejected.
+- Operational flow: keep `warn` enabled while new routes are being covered, monitor `TenancyMiddleware` warnings in the logs, and switch to `TENANCY_ENFORCEMENT_MODE=strict` once the warnings stop to fully enforce isolation.
+
 ## Database patterns
 - Every table referencing tenant data includes a `tenantId` foreign key.
 - Queries must include `tenantId = context.tenantId` constraints; reusable helpers can enforce this pattern as modules grow.

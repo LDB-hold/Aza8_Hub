@@ -9,19 +9,19 @@ export declare class TenantsService {
         context: import("@aza8/core-domain").TenantContext;
     } | {
         tenant: {
-            slug: string;
-            id: string;
-            name: string;
             status: string;
+            id: string;
+            slug: string;
+            name: string;
             plan: string;
         };
         context: import("@aza8/core-domain").TenantContext;
     }>;
     listTenants(): Promise<{
-        slug: string;
-        id: string;
-        name: string;
         status: string;
+        id: string;
+        slug: string;
+        name: string;
         plan: string;
     }[]>;
 }
