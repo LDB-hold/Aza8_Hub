@@ -104,15 +104,26 @@ export class RbacService {
       }
     });
 
-    return memberships.map((membership) => ({
-      ...membership,
-      role: {
-        ...membership.role,
-        scope: membership.role.scope as RoleScope,
-        key: membership.role.key as BaseRole,
-        description: membership.role.description ?? undefined
-      }
-    }));
+    return memberships.map((membership) => {
+      const permissions = (membership.role.permissions ?? []).map((rolePermission) => ({
+        permission: {
+          ...rolePermission.permission,
+          key: rolePermission.permission.key as PermissionCode,
+          description: rolePermission.permission.description ?? undefined
+        }
+      }));
+
+      return {
+        ...membership,
+        role: {
+          ...membership.role,
+          permissions,
+          scope: membership.role.scope as RoleScope,
+          key: membership.role.key as BaseRole,
+          description: membership.role.description ?? undefined
+        }
+      };
+    });
   }
 
   private collectPermissions(

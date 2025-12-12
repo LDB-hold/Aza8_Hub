@@ -22,13 +22,21 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
         this.logger = new common_1.Logger('PrismaTenancy');
         this.readActions = new Set([
             'findUnique',
+            'findUniqueOrThrow',
             'findMany',
             'findFirst',
+            'findFirstOrThrow',
             'count',
             'aggregate',
             'groupBy'
         ]);
-        this.uniqueActions = new Set(['findUnique', 'update', 'delete', 'upsert']);
+        this.uniqueActions = new Set([
+            'findUnique',
+            'findUniqueOrThrow',
+            'update',
+            'delete',
+            'upsert'
+        ]);
         this.writeActions = new Set([
             'create',
             'createMany',

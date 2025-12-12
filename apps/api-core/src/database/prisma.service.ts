@@ -7,38 +7,32 @@ import { TenantContextStore } from '../tenancy/tenant-context.store.js';
 import { TENANT_SCOPED_MODELS, TenantScopedModelName } from '../tenancy/tenant-scoped-models.js';
 
 type EnforcementMode = 'warn' | 'strict';
-type PrismaAction =
-  | 'findUnique'
-  | 'findMany'
-  | 'findFirst'
-  | 'create'
-  | 'update'
-  | 'updateMany'
-  | 'delete'
-  | 'deleteMany'
-  | 'upsert'
-  | 'createMany'
-  | 'count'
-  | 'aggregate'
-  | 'groupBy';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger('PrismaTenancy');
   private readonly enforcementMode: EnforcementMode;
 
-  private readonly readActions = new Set<PrismaAction>([
+  private readonly readActions = new Set<Prisma.PrismaAction>([
     'findUnique',
+    'findUniqueOrThrow',
     'findMany',
     'findFirst',
+    'findFirstOrThrow',
     'count',
     'aggregate',
     'groupBy'
   ]);
 
-  private readonly uniqueActions = new Set<PrismaAction>(['findUnique', 'update', 'delete', 'upsert']);
+  private readonly uniqueActions = new Set<Prisma.PrismaAction>([
+    'findUnique',
+    'findUniqueOrThrow',
+    'update',
+    'delete',
+    'upsert'
+  ]);
 
-  private readonly writeActions = new Set<PrismaAction>([
+  private readonly writeActions = new Set<Prisma.PrismaAction>([
     'create',
     'createMany',
     'update',
@@ -126,7 +120,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     args: Record<string, any> | undefined,
     tenantContext: TenantContext,
     model: string,
-    action: PrismaAction
+    action: Prisma.PrismaAction
   ) {
     const tenantId = tenantContext.tenantId as string;
     const scopedArgs = args ? { ...args } : {};
@@ -162,7 +156,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     where: Record<string, any> | undefined,
     tenantContext: TenantContext,
     model: string,
-    action: PrismaAction
+    action: Prisma.PrismaAction
   ) {
     const tenantId = tenantContext.tenantId as string;
     const provided = this.extractTenantId(where);
@@ -185,7 +179,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     args: Record<string, any> | undefined,
     tenantContext: TenantContext,
     model: string,
-    action: PrismaAction
+    action: Prisma.PrismaAction
   ) {
     const tenantId = tenantContext.tenantId as string;
     const scopedArgs = args ? { ...args } : {};
@@ -214,7 +208,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     data: Record<string, any> | null | undefined,
     tenantId: string,
     model: string,
-    action: PrismaAction
+    action: Prisma.PrismaAction
   ) {
     if (data === undefined || data === null) {
       throw new Error(
@@ -270,7 +264,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     if (!whereTenant) {
       this.logger.debug(
         `Hub context query without explicit tenantId on ${params.model}.${params.action}`,
-        tenantContext as Record<string, unknown>
+        tenantContext
       );
     }
   }
