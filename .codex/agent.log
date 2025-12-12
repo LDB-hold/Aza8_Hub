@@ -1,0 +1,35 @@
+{"timestamp": "2025-12-12T20:54:59Z", "task": "read sprint override instructions", "mcp": "context7", "docs": ["AGENTS.override.md"], "result": "OK"}
+{"timestamp": "2025-12-12T20:54:59Z", "task": "read base agent instructions", "mcp": "context7", "docs": ["AGENTS.md"], "result": "OK"}
+{"timestamp": "2025-12-12T20:54:59Z", "task": "list MCP resources", "mcp": "context7", "docs": [], "result": "none found"}
+{"timestamp": "2025-12-12T20:54:59Z", "task": "create .codex directory", "mcp": "context7", "docs": [], "result": "OK"}
+{"timestamp": "2025-12-12T20:55:28Z", "task": "read .codex/project-tree.txt", "mcp": "context7", "docs": [], "result": "not found"}
+{"timestamp": "2025-12-12T20:55:40Z", "task": "search project-tree.txt", "mcp": "context7", "docs": [], "result": "not found"}
+{"timestamp": "2025-12-12T20:55:48Z", "task": "read docs/architecture-base.md", "mcp": "context7", "docs": ["docs/architecture-base.md"], "result": "OK"}
+{"timestamp": "2025-12-12T20:55:56Z", "task": "read docs/tenancy.md", "mcp": "context7", "docs": ["docs/tenancy.md"], "result": "OK"}
+{"timestamp": "2025-12-12T20:56:05Z", "task": "read docs/rbac.md", "mcp": "context7", "docs": ["docs/rbac.md"], "result": "OK"}
+{"timestamp": "2025-12-12T20:56:16Z", "task": "read docs/platform-overview.md", "mcp": "context7", "docs": ["docs/platform-overview.md"], "result": "OK"}
+{"timestamp": "2025-12-12T20:56:27Z", "task": "read docs/pages.md", "mcp": "context7", "docs": ["docs/pages.md"], "result": "OK"}
+{"timestamp": "2025-12-12T20:56:35Z", "task": "read docs/implementation-map.md", "mcp": "context7", "docs": ["docs/implementation-map.md"], "result": "OK"}
+{"timestamp": "2025-12-12T20:56:44Z", "task": "read docs/development.md", "mcp": "context7", "docs": ["docs/development.md"], "result": "OK"}
+{"timestamp": "2025-12-12T20:56:53Z", "task": "read docs/e2e.md", "mcp": "context7", "docs": ["docs/e2e.md"], "result": "OK"}
+{"timestamp": "2025-12-12T20:57:04Z", "task": "list apps directory", "mcp": "context7", "docs": [], "result": "api-core, hub-web, portal-web, web"}
+{"timestamp": "2025-12-12T20:57:16Z", "task": "list packages directory", "mcp": "context7", "docs": [], "result": "auth-client, config, core-domain, eslint-config, tsconfig, ui"}
+{"timestamp": "2025-12-12T20:57:25Z", "task": "git status", "mcp": "context7", "docs": [], "result": "untracked .codex/"}
+{"timestamp": "2025-12-12T20:57:39Z", "task": "update plan for refactor", "mcp": "context7", "docs": [], "result": "created 5-step plan"}
+{"timestamp": "2025-12-12T20:58:00Z", "task": "read pnpm-workspace.yaml", "mcp": "context7", "docs": [], "result": "apps/*, packages/*"}
+{"timestamp": "2025-12-12T20:58:00Z", "task": "read tsconfig.json", "mcp": "context7", "docs": [], "result": "extends packages/tsconfig/tsconfig.base.json"}
+{"timestamp": "2025-12-12T20:58:00Z", "task": "read packages/tsconfig/tsconfig.base.json", "mcp": "context7", "docs": [], "result": "paths for @aza8/ui/auth-client/core-domain/config"}
+{"timestamp": "2025-12-12T20:58:20Z", "task": "read apps/web/package.json", "mcp": "context7", "docs": [], "result": "Next 14.2.3, scripts dev/build/lint/test:e2e"}
+{"timestamp": "2025-12-12T20:59:01Z", "task": "inspect apps/web structure", "mcp": "context7", "docs": [], "result": "has src/app with (app),(public), layout; empty pages dir; paths set"}
+{"timestamp": "2025-12-12T20:59:12Z", "task": "read apps/api-core/src/tenancy/tenancy.middleware.ts", "mcp": "context7", "docs": ["docs/tenancy.md"], "result": "middleware resolves host/x-forwarded-host with optional x-tenant-slug header"}
+{"timestamp": "2025-12-12T20:59:22Z", "task": "read apps/api-core/src/tenancy/tenancy.service.ts", "mcp": "context7", "docs": ["docs/tenancy.md"], "result": "resolves host, allows override tenantSlug, treats hub.localhost as hub"}
+{"timestamp": "2025-12-12T20:59:32Z", "task": "read apps/api-core/src/tenancy/tenant-context.service.ts", "mcp": "context7", "docs": ["docs/tenancy.md"], "result": "TenantContextService uses store with default hub context"}
+{"timestamp": "2025-12-12T20:59:45Z", "task": "read apps/api-core/src/tenancy/tenant-context.store.ts", "mcp": "context7", "docs": ["docs/tenancy.md"], "result": "AsyncLocalStorage tenant context store"}
+{"timestamp": "2025-12-12T20:59:55Z", "task": "read apps/api-core/src/tenancy/tenant-scoped-models.ts", "mcp": "context7", "docs": ["docs/tenancy.md"], "result": "tenant-scoped models list membership/toolinstall/invite/auditlog/task/fileitem/requestitem"}
+{"timestamp": "2025-12-12T21:00:13Z", "task": "read apps/api-core/src/database/prisma.service.ts", "mcp": "context7", "docs": ["docs/tenancy.md"], "result": "Prisma middleware with tenant scoped models, strict/warn enforcement"}
+{"timestamp": "2025-12-12T21:00:27Z", "task": "read apps/api-core/prisma/seed.ts", "mcp": "context7", "docs": ["docs/rbac.md", "docs/tenancy.md"], "result": "seeds tenants alpha/beta, hub users, portal roles/perms, tasks/files/requests"}
+{"timestamp": "2025-12-12T21:05:55Z", "task": "list MCP providers", "mcp": "context7", "docs": [], "result": "no providers configured"}
+{"timestamp": "2025-12-12T21:11:13Z", "task": "reload MCP providers from configuration", "mcp": "context7", "docs": [".codex/config.toml"], "result": "OK"}
+{"timestamp": "2025-12-12T21:11:13Z", "task": "list MCP providers", "mcp": "context7", "docs": [".codex/config.toml"], "result": "context7, linear, sentry, supabase"}
+{"timestamp": "2025-12-12T21:11:13Z", "task": "list MCP resources", "mcp": "context7", "docs": [], "result": "failed: method not found"}
+{"timestamp":"2025-12-12T21:19:55Z","task":"sanitize .codex/config.toml (remove secret, enforce MCP-first)","mcp":"filesystem","docs":["AGENTS.override.md","AGENTS.md"],"result":"OK"}
