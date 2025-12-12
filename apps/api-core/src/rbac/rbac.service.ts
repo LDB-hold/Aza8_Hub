@@ -57,15 +57,23 @@ export class RbacService {
     });
   }
 
-  async getEffectiveAccessForUser(
+  // Computes effective roles and permissions for the current request scope.
+  async getEffectiveRolesAndPermissionsForRequest(
     userId: string,
     tenantContext: TenantContext
   ): Promise<Pick<CurrentUserContext, 'memberships' | 'roles' | 'permissions'>> {
     const memberships = await this.resolveMemberships(userId, tenantContext);
-    const roles = memberships.map((membership) => membership.role.key);
+    const roles = this.collectRoles(memberships);
     const permissions = this.collectPermissions(memberships, tenantContext);
 
     return { memberships, roles, permissions };
+  }
+
+  async getEffectiveAccessForUser(
+    userId: string,
+    tenantContext: TenantContext
+  ): Promise<Pick<CurrentUserContext, 'memberships' | 'roles' | 'permissions'>> {
+    return this.getEffectiveRolesAndPermissionsForRequest(userId, tenantContext);
   }
 
   private async resolveMemberships(
@@ -119,8 +127,20 @@ export class RbacService {
     const uniqueCodes = Array.from(new Set(permissionCodes));
     return uniqueCodes.filter((code) => {
       const permissionDefinition = BASE_PERMISSIONS.find((permission) => permission.code === code);
-      return permissionDefinition?.scope === scope;
+      if (!permissionDefinition) {
+        return false;
+      }
+
+      if (permissionDefinition.scope === RoleScope.PLUGIN) {
+        return true;
+      }
+
+      return permissionDefinition.scope === scope;
     }) as PermissionCode[];
+  }
+
+  private collectRoles(memberships: DomainTenantMembership[]): BaseRole[] {
+    return Array.from(new Set(memberships.map((membership) => membership.role.key)));
   }
 
   private formatRoleName(code: BaseRole) {

@@ -9,7 +9,7 @@ import { BaseRole, PermissionCode } from '@aza8/core-domain';
 
 import { AuthenticatedRequest } from '../auth/interfaces/auth-user.interface.js';
 import { TenantContextService } from '../tenancy/tenant-context.service.js';
-import { REQUIRE_PERMISSIONS_KEY, REQUIRE_ROLES_KEY } from './rbac.decorator.js';
+import { REQUIRE_PERMISSIONS_METADATA_KEY, REQUIRE_ROLES_METADATA_KEY } from './rbac.decorator.js';
 
 @Injectable()
 export class RbacGuard implements CanActivate {
@@ -19,13 +19,13 @@ export class RbacGuard implements CanActivate {
   ) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<BaseRole[]>(REQUIRE_ROLES_KEY, [
+    const requiredRoles = this.reflector.getAllAndOverride<BaseRole[]>(REQUIRE_ROLES_METADATA_KEY, [
       context.getHandler(),
       context.getClass()
     ]);
 
     const requiredPermissions = this.reflector.getAllAndOverride<PermissionCode[]>(
-      REQUIRE_PERMISSIONS_KEY,
+      REQUIRE_PERMISSIONS_METADATA_KEY,
       [context.getHandler(), context.getClass()]
     );
 
@@ -35,7 +35,12 @@ export class RbacGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const userContext = request.userContext;
-    if (!userContext) {
+    if (
+      !userContext ||
+      !Array.isArray(userContext.roles) ||
+      !Array.isArray(userContext.permissions) ||
+      !userContext.tenantContext
+    ) {
       throw new UnauthorizedException();
     }
 
