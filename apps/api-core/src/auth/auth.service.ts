@@ -1,15 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Prisma } from '@prisma/client';
-import {
-  BaseRole,
-  CurrentUserContext,
-  RoleScope,
-  TenantContext,
-  TenantMembership as DomainTenantMembership,
-  User as DomainUser,
-  UserStatus
-} from '@aza8/core-domain';
+import { BaseRole, CurrentUserContext, RoleScope, TenantContext, User as DomainUser, UserStatus } from '@aza8/core-domain';
 
 import { PrismaService } from '../database/prisma.service.js';
 import { AppConfigService } from '../config/app-config.service.js';
@@ -63,27 +55,19 @@ export class AuthService {
       });
 
       const user = await this.prisma.user.findUnique({
-        where: { id: payload.sub },
-        include: {
-          memberships: {
-            include: { role: true }
-          }
-        }
+        where: { id: payload.sub }
       });
 
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
 
-      const filteredMemberships = this.filterMemberships(user.memberships, tenantContext);
-      const memberships = this.normalizeMemberships(filteredMemberships);
-      const roles = memberships.map((membership) => membership.role.key);
+      const access = await this.rbacService.getEffectiveAccessForUser(user.id, tenantContext);
 
       return {
         user: this.toDomainUser(user),
-        memberships,
         tenantContext,
-        roles
+        ...access
       };
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
@@ -133,36 +117,7 @@ export class AuthService {
     });
   }
 
-  private filterMemberships(
-    memberships: (Prisma.TenantMembershipGetPayload<{ include: { role: true } }>)[],
-    tenantContext: TenantContext
-  ) {
-    if (tenantContext.isHubRequest) {
-      return memberships.filter((membership) => membership.role.scope === RoleScope.GLOBAL_AZA8);
-    }
-
-    if (!tenantContext.tenantId) {
-      return [];
-    }
-
-    return memberships.filter((membership) => membership.tenantId === tenantContext.tenantId);
-  }
-
-  private normalizeMemberships(
-    memberships: (Prisma.TenantMembershipGetPayload<{ include: { role: true } }>)[]
-  ): DomainTenantMembership[] {
-    return memberships.map((membership) => ({
-      ...membership,
-      role: {
-        ...membership.role,
-        scope: membership.role.scope as RoleScope,
-        key: membership.role.key as BaseRole,
-        description: membership.role.description ?? undefined
-      }
-    }));
-  }
-
-  private toDomainUser(user: Prisma.UserGetPayload<{ include: { memberships: true } }>): DomainUser {
+  private toDomainUser(user: Prisma.UserGetPayload<{}>): DomainUser {
     return {
       id: user.id,
       email: user.email,

@@ -1,3 +1,5 @@
+import type { PermissionCode } from './rbac-config.js';
+
 export type TenantStatus = 'ACTIVE' | 'SUSPENDED' | 'DECOMMISSIONED';
 export type TenantPlan = 'STANDARD' | 'PREMIUM' | 'ENTERPRISE';
 
@@ -58,11 +60,14 @@ export interface Role {
   description?: string;
   createdAt: Date;
   updatedAt: Date;
+  permissions?: { permission: Permission }[];
 }
+
+export type PermissionScope = 'GLOBAL_AZA8' | 'TENANT' | 'PLUGIN';
 
 export interface Permission {
   id: string;
-  key: string;
+  key: PermissionCode;
   description?: string;
 }
 
@@ -87,6 +92,7 @@ export interface CurrentUserContext {
   memberships: TenantMembership[];
   tenantContext: TenantContext;
   roles: BaseRole[];
+  permissions: PermissionCode[];
 }
 
 export interface PluginDefinition {
@@ -128,3 +134,5 @@ export const extractTenantSlugFromHost = (host?: string | null): string | null =
   const [slug] = host.split('.');
   return slug || null;
 };
+
+export * from './rbac-config.js';
