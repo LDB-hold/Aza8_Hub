@@ -12,23 +12,33 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RbacGuard = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
+const tenant_context_service_js_1 = require("../tenancy/tenant-context.service.js");
 const rbac_decorator_js_1 = require("./rbac.decorator.js");
 let RbacGuard = class RbacGuard {
-    constructor(reflector) {
+    constructor(reflector, tenantContextService) {
         this.reflector = reflector;
+        this.tenantContextService = tenantContextService;
     }
     canActivate(context) {
-        const requiredRoles = this.reflector.getAllAndOverride(rbac_decorator_js_1.REQUIRE_ROLES_KEY, [
+        const requiredRoles = this.reflector.getAllAndOverride(rbac_decorator_js_1.REQUIRE_ROLES_METADATA_KEY, [
             context.getHandler(),
             context.getClass()
         ]);
-        const requiredPermissions = this.reflector.getAllAndOverride(rbac_decorator_js_1.REQUIRE_PERMISSIONS_KEY, [context.getHandler(), context.getClass()]);
+        const requiredPermissions = this.reflector.getAllAndOverride(rbac_decorator_js_1.REQUIRE_PERMISSIONS_METADATA_KEY, [context.getHandler(), context.getClass()]);
         if ((!requiredRoles || requiredRoles.length === 0) && (!requiredPermissions || requiredPermissions.length === 0)) {
             return true;
         }
         const request = context.switchToHttp().getRequest();
         const userContext = request.userContext;
-        if (!userContext) {
+        if (!userContext ||
+            !Array.isArray(userContext.roles) ||
+            !Array.isArray(userContext.permissions) ||
+            !userContext.tenantContext) {
+            throw new common_1.UnauthorizedException();
+        }
+        const tenantContext = this.tenantContextService.getContext();
+        if (userContext.tenantContext.isHubRequest !== tenantContext.isHubRequest ||
+            (!tenantContext.isHubRequest && userContext.tenantContext.tenantId !== tenantContext.tenantId)) {
             throw new common_1.UnauthorizedException();
         }
         const hasRoles = !requiredRoles || requiredRoles.length === 0 || requiredRoles.some((role) => userContext.roles.includes(role));
@@ -41,6 +51,7 @@ let RbacGuard = class RbacGuard {
 exports.RbacGuard = RbacGuard;
 exports.RbacGuard = RbacGuard = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [core_1.Reflector])
+    __metadata("design:paramtypes", [core_1.Reflector,
+        tenant_context_service_js_1.TenantContextService])
 ], RbacGuard);
 //# sourceMappingURL=rbac.guard.js.map

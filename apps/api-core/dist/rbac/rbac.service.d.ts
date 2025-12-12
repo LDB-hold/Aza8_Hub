@@ -12,8 +12,10 @@ export declare class RbacService {
         createdAt: Date;
         updatedAt: Date;
     }>;
+    getEffectiveRolesAndPermissionsForRequest(userId: string, tenantContext: TenantContext): Promise<Pick<CurrentUserContext, 'memberships' | 'roles' | 'permissions'>>;
     getEffectiveAccessForUser(userId: string, tenantContext: TenantContext): Promise<Pick<CurrentUserContext, 'memberships' | 'roles' | 'permissions'>>;
     private resolveMemberships;
     private collectPermissions;
+    private collectRoles;
     private formatRoleName;
 }

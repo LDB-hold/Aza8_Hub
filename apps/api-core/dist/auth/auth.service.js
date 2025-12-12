@@ -63,7 +63,7 @@ let AuthService = class AuthService {
             if (!user) {
                 throw new common_1.UnauthorizedException('User not found');
             }
-            const access = await this.rbacService.getEffectiveAccessForUser(user.id, tenantContext);
+            const access = await this.rbacService.getEffectiveRolesAndPermissionsForRequest(user.id, tenantContext);
             return {
                 user: this.toDomainUser(user),
                 tenantContext,

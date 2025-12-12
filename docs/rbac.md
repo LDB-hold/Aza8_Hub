@@ -16,23 +16,51 @@
 | `TENANT_MARKETING` | TENANT | Access to marketing plugins, campaigns, lead ingestion. |
 | `TENANT_SUPPLIER` | TENANT | Access scoped to supplier/inventory plugins. |
 
-## Permissions matrix
+## Permissions matrix (v1)
 
 ### Permission codes por escopo
 - **GLOBAL_AZA8**: `HUB_TENANTS_READ`, `HUB_TENANTS_MANAGE`, `HUB_AUDITLOG_READ`, `HUB_PLUGINS_MANAGE`
 - **TENANT**: `TENANT_SETTINGS_READ`, `TENANT_SETTINGS_MANAGE`, `TENANT_MEMBERS_MANAGE`, `TENANT_BILLING_READ`, `TENANT_BILLING_MANAGE`, `TENANT_AUDITLOG_READ`, `TENANT_PLUGINS_MANAGE`, `TENANT_PLUGINS_USE`
 
 ### Mapeamento inicial de papéis → permissões
-| Role | Permissions |
-| --- | --- |
-| `AZA8_ADMIN` | HUB_TENANTS_READ, HUB_TENANTS_MANAGE, HUB_AUDITLOG_READ, HUB_PLUGINS_MANAGE |
-| `AZA8_ACCOUNT_MANAGER` | HUB_TENANTS_READ, HUB_TENANTS_MANAGE, HUB_AUDITLOG_READ |
-| `AZA8_OPERATOR` | HUB_TENANTS_READ, HUB_AUDITLOG_READ |
-| `TENANT_OWNER` | TENANT_SETTINGS_READ, TENANT_SETTINGS_MANAGE, TENANT_MEMBERS_MANAGE, TENANT_BILLING_READ, TENANT_BILLING_MANAGE, TENANT_AUDITLOG_READ, TENANT_PLUGINS_MANAGE, TENANT_PLUGINS_USE |
-| `TENANT_MANAGER` | TENANT_SETTINGS_READ, TENANT_SETTINGS_MANAGE, TENANT_MEMBERS_MANAGE, TENANT_AUDITLOG_READ, TENANT_PLUGINS_MANAGE, TENANT_PLUGINS_USE |
-| `TENANT_MARKETING` | TENANT_PLUGINS_USE |
-| `TENANT_SUPPLIER` | TENANT_PLUGINS_USE |
+| Role | HUB_TENANTS_READ | HUB_TENANTS_MANAGE | HUB_AUDITLOG_READ | HUB_PLUGINS_MANAGE | TENANT_SETTINGS_READ | TENANT_SETTINGS_MANAGE | TENANT_MEMBERS_MANAGE | TENANT_BILLING_READ | TENANT_BILLING_MANAGE | TENANT_AUDITLOG_READ | TENANT_PLUGINS_MANAGE | TENANT_PLUGINS_USE |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `AZA8_ADMIN` | X | X | X | X | – | – | – | – | – | – | – | – |
+| `AZA8_ACCOUNT_MANAGER` | X | X | X | – | – | – | – | – | – | – | – | – |
+| `AZA8_OPERATOR` | X | – | X | – | – | – | – | – | – | – | – | – |
+| `TENANT_OWNER` | – | – | – | – | X | X | X | X | X | X | X | X |
+| `TENANT_MANAGER` | – | – | – | – | X | X | X | – | – | X | X | X |
+| `TENANT_MARKETING` | – | – | – | – | X | – | – | – | – | – | – | X |
+| `TENANT_SUPPLIER` | – | – | – | – | X | – | – | – | – | – | – | X |
 
 ## Guards e decoradores
 - `@RequireRoles()` permanece disponível para restrições mais amplas (ex.: apenas `AZA8_ADMIN`).
-- `@RequirePermissions()` é o caminho preferido para regras de negócio e já está aplicado em rotas do hub (ex.: `GET /tenants`).
+- `@RequirePermissions()` é o caminho preferido para regras de negócio (billing, membros, plugins, gestão de tenants).
+
+### Guide: Roles vs Permissions
+- Use `@RequireRoles()` quando a regra é estrutural ou extremamente sensível (ex.: somente `AZA8_ADMIN` em uma operação destrutiva do hub).
+- Use `@RequirePermissions()` para todas as operações de negócio: leitura/gestão de tenants, billing, membros, audit log, plugins.
+- Combinar ambos é válido para camadas extras em operações globais sensíveis.
+
+Exemplos:
+```ts
+@UseGuards(AuthGuard, RbacGuard)
+@RequirePermissions('HUB_TENANTS_READ')
+@Get('/tenants')
+listTenants() { ... }
+```
+
+```ts
+@UseGuards(AuthGuard, RbacGuard)
+@RequirePermissions('TENANT_MEMBERS_MANAGE')
+@Post('/tenant/members')
+addMember() { ... }
+```
+
+```ts
+@UseGuards(AuthGuard, RbacGuard)
+@RequireRoles('AZA8_ADMIN')
+@RequirePermissions('HUB_TENANTS_MANAGE')
+@Post('/tenants')
+createTenant() { ... }
+```
