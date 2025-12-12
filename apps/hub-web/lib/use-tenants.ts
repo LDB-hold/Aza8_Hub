@@ -3,33 +3,18 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { apiClient } from './api-client';
+import { fetchTenantsData, type TenantSummary } from './tenants-service';
 
-export interface TenantSummary {
-  id: string;
-  name: string;
-  slug: string;
-  plan: string;
-  status: string;
-}
+export type { TenantSummary } from './tenants-service';
 
 export const useTenants = () => {
   const [tenants, setTenants] = useState<TenantSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchTenants = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await apiClient.get<TenantSummary[]>('/tenants');
-      setTenants(response);
-    } catch (err) {
-      setError(err as Error);
-      setTenants([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const fetchTenants = useCallback(() => {
+    return fetchTenantsData(apiClient, setTenants, setLoading, setError);
+  }, [setTenants, setLoading, setError]);
 
   useEffect(() => {
     void fetchTenants();
