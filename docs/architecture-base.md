@@ -4,7 +4,7 @@
 - **Core API (`apps/api-core`)** – NestJS service hosting tenancy resolution, RBAC, auditing entities, Prisma/PostgreSQL access, and shared guards.
 - **Hub Web (`apps/hub-web`)** – Next.js App Router for Aza8 operators. Talks to the API through shared auth helpers.
 - **Portal Web (`apps/portal-web`)** – Next.js tenant portals served from `{tenant}.aza8.com.br`, sharing the same API + auth packages.
-- **Packages (`packages/*`)** – Shared UI kit, domain types, auth client, configuration utilities, lint/tconfig presets. All apps consume them through path aliases.
+- **Packages (`packages/*`)** – Shared UI kit, domain types, auth client, configuration utilities, lint/tsconfig presets. All apps consume them through path aliases.
 
 ## Tenancy model
 1. Requests hit Cloudflare/edge, then the API.
