@@ -8,11 +8,15 @@ import { Reflector } from '@nestjs/core';
 import { BaseRole, PermissionCode } from '@aza8/core-domain';
 
 import { AuthenticatedRequest } from '../auth/interfaces/auth-user.interface.js';
+import { TenantContextService } from '../tenancy/tenant-context.service.js';
 import { REQUIRE_PERMISSIONS_KEY, REQUIRE_ROLES_KEY } from './rbac.decorator.js';
 
 @Injectable()
 export class RbacGuard implements CanActivate {
-  constructor(private readonly reflector: Reflector) {}
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly tenantContextService: TenantContextService
+  ) {}
 
   canActivate(context: ExecutionContext): boolean {
     const requiredRoles = this.reflector.getAllAndOverride<BaseRole[]>(REQUIRE_ROLES_KEY, [
@@ -32,6 +36,14 @@ export class RbacGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const userContext = request.userContext;
     if (!userContext) {
+      throw new UnauthorizedException();
+    }
+
+    const tenantContext = this.tenantContextService.getContext();
+    if (
+      userContext.tenantContext.isHubRequest !== tenantContext.isHubRequest ||
+      (!tenantContext.isHubRequest && userContext.tenantContext.tenantId !== tenantContext.tenantId)
+    ) {
       throw new UnauthorizedException();
     }
 
