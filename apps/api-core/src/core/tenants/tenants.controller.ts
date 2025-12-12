@@ -3,7 +3,7 @@ import { BaseRole } from '@aza8/core-domain';
 
 import { AuthGuard } from '../../auth/guards/auth.guard.js';
 import { RbacGuard } from '../../rbac/rbac.guard.js';
-import { RequireRoles } from '../../rbac/rbac.decorator.js';
+import { RequirePermissions, RequireRoles } from '../../rbac/rbac.decorator.js';
 import { TenantsService } from './tenants.service.js';
 
 @Controller('tenants')
@@ -19,6 +19,7 @@ export class TenantsController {
   @Get()
   @UseGuards(AuthGuard, RbacGuard)
   @RequireRoles(BaseRole.AZA8_ADMIN)
+  @RequirePermissions('HUB_TENANTS_READ')
   list() {
     return this.tenantsService.listTenants();
   }
