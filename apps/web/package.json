@@ -10,11 +10,16 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "1.0.2",
     "@aza8/config": "workspace:*",
     "@aza8/core-domain": "workspace:*",
+    "class-variance-authority": "0.7.0",
+    "clsx": "2.1.1",
     "next": "14.2.3",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "tailwind-merge": "2.2.1",
+    "tailwindcss-animate": "1.0.7"
   },
   "devDependencies": {
     "@aza8/tsconfig": "workspace:*",
@@ -22,6 +27,9 @@
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
     "eslint-config-next": "^16.0.8",
+    "autoprefixer": "10.4.17",
+    "postcss": "8.4.35",
+    "tailwindcss": "3.4.3",
     "typescript": "5.4.5"
   }
 }
