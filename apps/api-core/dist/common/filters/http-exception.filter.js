@@ -34,7 +34,7 @@ let HttpExceptionFilter = HttpExceptionFilter_1 = class HttpExceptionFilter {
             status,
             message,
             method: request.method
-        }, undefined, 'HttpException');
+        }, exception instanceof Error ? exception.stack : String(exception), 'HttpException');
         response.status(status).json({
             status,
             message,

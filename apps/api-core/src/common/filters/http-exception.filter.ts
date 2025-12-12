@@ -35,7 +35,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         message,
         method: request.method
       },
-      undefined,
+      exception instanceof Error ? exception.stack : String(exception),
       'HttpException'
     );
 

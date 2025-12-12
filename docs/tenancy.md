@@ -1,35 +1,32 @@
-# Tenancy Model
+# Tenancy Model (host-based)
 
-## Host-based routing
-- `hub.aza8.com.br` → hub mode, sem `tenantId`, `isHubRequest=true`.
-- `{slug}.aza8.com.br` → tenant mode, resolve o `Tenant` pelo slug e preenche o contexto `{ tenantId, tenantSlug, isHubRequest=false }`.
-- Em desenvolvimento, `localhost` atua como hub e `*.localhost` resolve para slugs de tenant.
+## Resolução de host
+- `hub.aza8.com.br` (ou `hub.localhost`) → contexto hub `{ tenantId: null, isHubRequest: true }`.
+- `{slug}.aza8.com.br` (ou `{slug}.localhost`) → contexto portal `{ tenantId, tenantSlug, isHubRequest: false }` carregado a partir do banco.
+- Middleware lê `x-forwarded-host` antes de `host` para suportar edge/CDN.
 
-## TenantContext flow
-1. `TenancyMiddleware` resolve o host (incluindo `x-forwarded-host`), busca o tenant correspondente e registra o contexto na `TenantContextStore` antes dos controllers.
-2. `TenantContextService` expõe o contexto da requisição para services/guards sem aceitar tenantId arbitrário.
-3. `AuthGuard` filtra memberships para o tenant ativo (ou roles globais em modo hub) garantindo RBAC correto.
-4. Services de domínio (ex.: `TenantsService`) leem sempre do `TenantContextService`, nunca de payloads externos.
+## Fluxo de contexto
+1. `TenancyMiddleware` resolve o host e insere o contexto na `TenantContextStore` (AsyncLocalStorage).
+2. `TenantContextService` expõe o contexto por requisição para guards/services sem aceitar `tenantId` externo.
+3. `AuthGuard` valida sessão, confirma membership do tenant atual (portal) ou role de hub, e injeta `userContext` na request.
+4. `PermissionsGuard` usa `@RequirePermissions(...)` para bloquear rota quando o usuário não possui todos os requisitos.
 
-## Modelos tenant-scoped
-Os modelos abaixo sempre recebem/validam `tenantId` automaticamente pelo `PrismaService`:
-- `TenantMembership`
-- `TenantPlugin`
-- `AuditLog`
+## Enforcements Prisma
+- Modelos escopados: `Membership`, `ToolInstall`, `Invite`, `AuditLog`, `Task`, `FileItem`, `RequestItem`.
+- `PrismaService` middleware injeta `tenantId` em writes e filtra reads automaticamente quando `isHubRequest=false`.
+- `TENANCY_ENFORCEMENT_MODE=strict` gera erro em writes sem `tenantId` ou filtros cruzando tenants; `warn` apenas loga.
+- Hub requests (isHubRequest=true) não recebem injeção automática, mas guardas de rota ainda checam permissões.
 
-Mantenha esta lista sincronizada com `apps/api-core/src/tenancy/tenant-scoped-models.ts`. Se novos modelos receberem `tenantId`, inclua-os em ambos os lugares.
+## Seeds determinísticos
+- Tenants: alpha, beta.
+- Ferramentas instaladas por tenant: alpha (todas), beta (tasks/reports).
+- Usuário logado determina o tenant pelo host; não há troca de tenant via payload.
 
-## Enforcement modes
-- Controlado por `TENANCY_ENFORCEMENT_MODE` (`warn` por padrão, `strict` quando pronto para bloqueio total).
-- `warn`: o middleware registra avisos ao faltar contexto ou ao detectar `tenantId` cruzado, mas continua a execução.
-- `strict`: as mesmas condições geram erro — sem contexto de tenant ou com `tenantId` divergente a operação é bloqueada.
-- Payloads de escrita em modelos tenant-scoped precisam incluir `data`; ausências disparam erro para evitar gravações vazias.
+## Frontend
+- App Router único serve `/hub/*` e `/app/*` no mesmo projeto. Menu e RouteGuard usam `tenantContext` do `/auth/me`.
+- A navegação filtra itens por `requiredPermissions` e `toolKey`. Quando a ferramenta não está instalada, mostra “Tool not installed” ou 404.
 
-## Componentes visíveis
-- **Dashboard Hub** (`apps/hub-web/components/hub-dashboard.tsx`): mostra usuário atual, contexto (hub ou slug) e até cinco tenants via `/me` e `/tenants` usando `@aza8/auth-client`.
-- **Dashboard Portal** (`apps/portal-web/components/portal-home.tsx`): resolve tenant atual (`/tenants/current`) e usuário (`/me`), exibindo slug/plano/status e roles no contexto isolado.
-
-## Fluxo de desenvolvimento
-- `start.sh` exige `.env` em `apps/api-core`, `apps/hub-web` e `apps/portal-web` (copiar dos `.env.example`).
-- Instala dependências (pode ser pulado com `SKIP_INSTALL=1`), gera Prisma Client e aplica migrations (pulável via `SKIP_MIGRATIONS=1`).
-- Sobe API/Hub/Portal em paralelo após preparar o ambiente.
+## Como testar rapidamente
+1. `pnpm --filter @aza8/api-core prisma db push && pnpm --filter @aza8/api-core prisma db seed`.
+2. Rodar API (`pnpm --filter @aza8/api-core dev`) e web (`pnpm --filter @aza8/web dev`).
+3. Hosts: `hub.localhost` para hub; `alpha.localhost` / `beta.localhost` para portals.

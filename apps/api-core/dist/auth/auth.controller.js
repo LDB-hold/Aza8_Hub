@@ -14,24 +14,61 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
-const auth_callback_dto_js_1 = require("./dto/auth-callback.dto.js");
+const auth_guard_js_1 = require("./auth.guard.js");
 const auth_service_js_1 = require("./auth.service.js");
+const login_dto_js_1 = require("./dto/login.dto.js");
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
     }
-    callback(payload) {
-        return this.authService.handleCallback(payload);
+    async login(payload, res) {
+        const userContext = await this.authService.login(payload);
+        this.setSessionCookie(res, userContext.user.id);
+        return userContext;
+    }
+    async logout(res) {
+        res.clearCookie('session', { path: '/' });
+        return { success: true };
+    }
+    async me(req, _res) {
+        if (!req.userContext) {
+            throw new common_1.UnauthorizedException('Missing session');
+        }
+        return req.userContext;
+    }
+    setSessionCookie(res, userId) {
+        res.cookie('session', userId, {
+            httpOnly: true,
+            sameSite: 'lax',
+            path: '/'
+        });
     }
 };
 exports.AuthController = AuthController;
 __decorate([
-    (0, common_1.Post)('callback'),
+    (0, common_1.Post)('login'),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [auth_callback_dto_js_1.AuthCallbackDto]),
-    __metadata("design:returntype", void 0)
-], AuthController.prototype, "callback", null);
+    __metadata("design:paramtypes", [login_dto_js_1.LoginDto, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "login", null);
+__decorate([
+    (0, common_1.Post)('logout'),
+    __param(0, (0, common_1.Res)({ passthrough: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "logout", null);
+__decorate([
+    (0, common_1.Get)('me'),
+    (0, common_1.UseGuards)(auth_guard_js_1.AuthGuard),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "me", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_js_1.AuthService])

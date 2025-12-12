@@ -1,4 +1,8 @@
 import { TenantsService } from './tenants.service.js';
+declare class CreateTenantDto {
+    name: string;
+    slug: string;
+}
 export declare class TenantsController {
     private readonly tenantsService;
     constructor(tenantsService: TenantsService);
@@ -7,19 +11,24 @@ export declare class TenantsController {
         context: import("@aza8/core-domain").TenantContext;
     } | {
         tenant: {
-            slug: string;
             id: string;
+            createdAt: Date;
             name: string;
-            status: string;
-            plan: string;
+            slug: string;
         };
         context: import("@aza8/core-domain").TenantContext;
     }>;
     list(): Promise<{
-        slug: string;
         id: string;
+        createdAt: Date;
         name: string;
-        status: string;
-        plan: string;
+        slug: string;
     }[]>;
+    create(dto: CreateTenantDto): Promise<{
+        id: string;
+        slug: string;
+        name: string;
+        createdAt: Date;
+    }>;
 }
+export {};

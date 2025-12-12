@@ -21,6 +21,11 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new LoggingInterceptor());
 
+  app.enableCors({
+    origin: true,
+    credentials: true
+  });
+
   const configService = app.get(AppConfigService);
   const { port } = configService.apiConfig;
 

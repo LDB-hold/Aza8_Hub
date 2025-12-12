@@ -8,33 +8,30 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TenantContextService = void 0;
 const common_1 = require("@nestjs/common");
-const core_1 = require("@nestjs/core");
+const tenant_context_store_js_1 = require("./tenant-context.store.js");
 const defaultContext = {
     tenantId: null,
     tenantSlug: null,
     isHubRequest: true
 };
 let TenantContextService = class TenantContextService {
-    constructor(request) {
-        this.request = request;
+    constructor(store) {
+        this.store = store;
     }
     setContext(context) {
-        this.request.tenantContext = context;
+        this.store.runWithContext(context, () => { });
     }
     getContext() {
-        return this.request.tenantContext ?? { ...defaultContext };
+        const fromStore = this.store.getContext();
+        return fromStore ?? { ...defaultContext };
     }
 };
 exports.TenantContextService = TenantContextService;
 exports.TenantContextService = TenantContextService = __decorate([
-    (0, common_1.Injectable)({ scope: common_1.Scope.REQUEST }),
-    __param(0, (0, common_1.Inject)(core_1.REQUEST)),
-    __metadata("design:paramtypes", [Object])
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [tenant_context_store_js_1.TenantContextStore])
 ], TenantContextService);
 //# sourceMappingURL=tenant-context.service.js.map

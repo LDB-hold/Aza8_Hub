@@ -1,1 +1,1 @@
-{"version":3,"file":"tenant-scoped-models.js","sourceRoot":"","sources":["../../src/tenancy/tenant-scoped-models.ts"],"names":[],"mappings":";;;AAAA,kEAAkE;AAClE,mFAAmF;AACtE,QAAA,oBAAoB,GAAG;IAClC,kBAAkB;IAClB,cAAc;IACd,UAAU;CACF,CAAC"}
+{"version":3,"file":"tenant-scoped-models.js","sourceRoot":"","sources":["../../src/tenancy/tenant-scoped-models.ts"],"names":[],"mappings":";;;AAAA,kEAAkE;AAClE,mFAAmF;AACtE,QAAA,oBAAoB,GAAG;IAClC,YAAY;IACZ,aAAa;IACb,QAAQ;IACR,UAAU;IACV,MAAM;IACN,UAAU;IACV,aAAa;CACL,CAAC"}

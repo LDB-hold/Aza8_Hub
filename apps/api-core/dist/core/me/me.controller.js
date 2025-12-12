@@ -14,18 +14,17 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MeController = void 0;
 const common_1 = require("@nestjs/common");
-const current_user_decorator_js_1 = require("../../auth/decorators/current-user.decorator.js");
-const auth_guard_js_1 = require("../../auth/guards/auth.guard.js");
+const auth_guard_js_1 = require("../../auth/auth.guard.js");
 let MeController = class MeController {
-    me(currentUser) {
-        return currentUser;
+    me(req) {
+        return req.userContext;
     }
 };
 exports.MeController = MeController;
 __decorate([
     (0, common_1.Get)('me'),
     (0, common_1.UseGuards)(auth_guard_js_1.AuthGuard),
-    __param(0, (0, current_user_decorator_js_1.CurrentUser)()),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)

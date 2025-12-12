@@ -19,10 +19,15 @@ let TenancyMiddleware = class TenancyMiddleware {
         this.tenantContextStore = tenantContextStore;
     }
     async use(req, _res, next) {
+        // simple trace to ensure middleware runs
+        // eslint-disable-next-line no-console
+        console.debug('[TenancyMiddleware] host', req.headers.host, 'forwarded', req.headers['x-forwarded-host']);
         const forwarded = req.headers['x-forwarded-host'];
         const hostHeader = Array.isArray(forwarded) ? forwarded[0] : forwarded;
         const host = hostHeader || req.headers.host;
-        req.tenantContext = await this.tenancyService.resolveContext(host);
+        const tenantSlugHeader = req.headers['x-tenant-slug'];
+        const tenantSlug = Array.isArray(tenantSlugHeader) ? tenantSlugHeader[0] : tenantSlugHeader;
+        req.tenantContext = await this.tenancyService.resolveContext(host, tenantSlug);
         return this.tenantContextStore.runWithContext(req.tenantContext, () => next());
     }
 };

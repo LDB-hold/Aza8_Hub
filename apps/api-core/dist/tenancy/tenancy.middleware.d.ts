@@ -7,6 +7,7 @@ import { TenantContextStore } from './tenant-context.store.js';
 type RequestWithContext = IncomingMessage & {
     headers: IncomingHttpHeaders & {
         host?: string;
+        'x-tenant-slug'?: string;
     };
     tenantContext?: TenantContext;
 };

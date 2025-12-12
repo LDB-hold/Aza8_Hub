@@ -17,29 +17,33 @@ let TenancyService = class TenancyService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async resolveContext(hostHeader) {
+    async resolveContext(hostHeader, tenantSlugOverride) {
         if (!hostHeader) {
             throw new common_1.BadRequestException('Host header missing');
         }
         const host = hostHeader.split(':')[0];
+        const normalizedOverride = tenantSlugOverride?.trim() || null;
+        // Hub host or plain localhost -> hub unless override provided
         if (this.isInternalHost(host) || (0, core_domain_1.isHubHost)(host)) {
+            if (!normalizedOverride) {
+                return {
+                    tenantId: null,
+                    tenantSlug: null,
+                    isHubRequest: true
+                };
+            }
+            const tenant = await this.findTenantBySlug(normalizedOverride);
             return {
-                tenantId: null,
-                tenantSlug: null,
-                isHubRequest: true
+                tenantId: tenant.id,
+                tenantSlug: tenant.slug,
+                isHubRequest: false
             };
         }
         const tenantSlug = (0, core_domain_1.extractTenantSlugFromHost)(host);
         if (!tenantSlug) {
             throw new common_1.NotFoundException('Tenant not found');
         }
-        const tenant = await this.prisma.tenant.findUnique({
-            where: { slug: tenantSlug },
-            select: { id: true, slug: true }
-        });
-        if (!tenant) {
-            throw new common_1.NotFoundException('Tenant not found');
-        }
+        const tenant = await this.findTenantBySlug(tenantSlug);
         return {
             tenantId: tenant.id,
             tenantSlug: tenant.slug,
@@ -47,7 +51,17 @@ let TenancyService = class TenancyService {
         };
     }
     isInternalHost(host) {
-        return host === 'localhost' || host === '127.0.0.1';
+        return host === 'localhost' || host === '127.0.0.1' || host === 'hub.localhost';
+    }
+    async findTenantBySlug(slug) {
+        const tenant = await this.prisma.tenant.findUnique({
+            where: { slug },
+            select: { id: true, slug: true }
+        });
+        if (!tenant) {
+            throw new common_1.NotFoundException('Tenant not found');
+        }
+        return tenant;
     }
 };
 exports.TenancyService = TenancyService;

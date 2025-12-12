@@ -1,194 +1,197 @@
-export type PermissionScope = 'GLOBAL_AZA8' | 'TENANT' | 'PLUGIN';
-
-export type RoleCode =
+export type RoleKey =
   | 'AZA8_ADMIN'
+  | 'AZA8_SUPPORT'
   | 'AZA8_ACCOUNT_MANAGER'
-  | 'AZA8_OPERATOR'
-  | 'TENANT_OWNER'
-  | 'TENANT_MANAGER'
-  | 'TENANT_MARKETING'
-  | 'TENANT_SUPPLIER';
+  | 'OWNER'
+  | 'MANAGER'
+  | 'MEMBER'
+  | 'SUPPLIER';
 
-export type PermissionCode =
-  | 'HUB_TENANTS_READ'
-  | 'HUB_TENANTS_MANAGE'
-  | 'HUB_AUDITLOG_READ'
-  | 'HUB_PLUGINS_MANAGE'
+export type RoleScope = 'HUB' | 'PORTAL';
+
+export type PermissionKey =
+  | 'HUB_DASHBOARD_VIEW'
+  | 'HUB_TENANT_READ'
+  | 'HUB_TENANT_WRITE'
+  | 'HUB_TENANT_USERS_READ'
+  | 'HUB_TENANT_USERS_WRITE'
+  | 'HUB_TOOLS_MANAGE'
+  | 'HUB_RBAC_VIEW'
+  | 'HUB_AUDIT_READ'
+  | 'PORTAL_DASHBOARD_VIEW'
+  | 'TENANT_MEMBER_READ'
+  | 'TENANT_MEMBER_INVITE'
+  | 'TENANT_MEMBER_ROLE_UPDATE'
   | 'TENANT_SETTINGS_READ'
-  | 'TENANT_SETTINGS_MANAGE'
-  | 'TENANT_MEMBERS_MANAGE'
+  | 'TENANT_SETTINGS_WRITE'
   | 'TENANT_BILLING_READ'
-  | 'TENANT_BILLING_MANAGE'
-  | 'TENANT_AUDITLOG_READ'
-  | 'TENANT_PLUGINS_MANAGE'
-  | 'TENANT_PLUGINS_USE';
+  | 'TENANT_BILLING_WRITE'
+  | 'AUDIT_READ'
+  | 'TOOL_TASKS_READ'
+  | 'TOOL_TASKS_WRITE'
+  | 'TOOL_FILES_READ'
+  | 'TOOL_FILES_WRITE'
+  | 'TOOL_REQUESTS_READ'
+  | 'TOOL_REQUESTS_CREATE'
+  | 'TOOL_REQUESTS_APPROVE'
+  | 'TOOL_REPORTS_READ';
+
+export const TOOL_KEYS = ['tasks', 'files', 'requests', 'reports'] as const;
+export type ToolKey = (typeof TOOL_KEYS)[number];
 
 export type PermissionDefinition = {
-  code: PermissionCode;
-  scope: PermissionScope;
+  key: PermissionKey;
   description: string;
+  scope: RoleScope;
 };
 
 export type RoleDefinition = {
-  code: RoleCode;
-  scope: PermissionScope;
+  key: RoleKey;
+  name: string;
+  scope: RoleScope;
   description: string;
 };
 
-export type RolePermissionsDefinition = {
-  roleCode: RoleCode;
-  permissionCodes: PermissionCode[];
+export type RolePermissionDefinition = {
+  role: RoleKey;
+  permissions: PermissionKey[];
 };
 
-export const BASE_PERMISSIONS: PermissionDefinition[] = [
-  {
-    code: 'HUB_TENANTS_READ',
-    scope: 'GLOBAL_AZA8',
-    description: 'List and view tenants from the hub'
-  },
-  {
-    code: 'HUB_TENANTS_MANAGE',
-    scope: 'GLOBAL_AZA8',
-    description: 'Create, update or deactivate tenants from the hub'
-  },
-  {
-    code: 'HUB_AUDITLOG_READ',
-    scope: 'GLOBAL_AZA8',
-    description: 'Read audit logs from the hub context'
-  },
-  {
-    code: 'HUB_PLUGINS_MANAGE',
-    scope: 'GLOBAL_AZA8',
-    description: 'Manage the global plugin catalog'
-  },
-  {
-    code: 'TENANT_SETTINGS_READ',
-    scope: 'TENANT',
-    description: 'View tenant settings'
-  },
-  {
-    code: 'TENANT_SETTINGS_MANAGE',
-    scope: 'TENANT',
-    description: 'Update tenant settings'
-  },
-  {
-    code: 'TENANT_MEMBERS_MANAGE',
-    scope: 'TENANT',
-    description: 'Manage tenant members and invitations'
-  },
-  {
-    code: 'TENANT_BILLING_READ',
-    scope: 'TENANT',
-    description: 'Read tenant billing details'
-  },
-  {
-    code: 'TENANT_BILLING_MANAGE',
-    scope: 'TENANT',
-    description: 'Manage tenant billing and subscriptions'
-  },
-  {
-    code: 'TENANT_AUDITLOG_READ',
-    scope: 'TENANT',
-    description: 'Read tenant audit logs'
-  },
-  {
-    code: 'TENANT_PLUGINS_MANAGE',
-    scope: 'TENANT',
-    description: 'Enable or disable plugins for the tenant'
-  },
-  {
-    code: 'TENANT_PLUGINS_USE',
-    scope: 'TENANT',
-    description: 'Use enabled plugins in the tenant context'
-  }
+export const PERMISSIONS: PermissionDefinition[] = [
+  { key: 'HUB_DASHBOARD_VIEW', description: 'Ver dashboard do hub', scope: 'HUB' },
+  { key: 'HUB_TENANT_READ', description: 'Ler tenants', scope: 'HUB' },
+  { key: 'HUB_TENANT_WRITE', description: 'Criar/editar tenants', scope: 'HUB' },
+  { key: 'HUB_TENANT_USERS_READ', description: 'Listar usuários de tenant', scope: 'HUB' },
+  { key: 'HUB_TENANT_USERS_WRITE', description: 'Gerenciar usuários de tenant', scope: 'HUB' },
+  { key: 'HUB_TOOLS_MANAGE', description: 'Habilitar/desabilitar ferramentas', scope: 'HUB' },
+  { key: 'HUB_RBAC_VIEW', description: 'Ver RBAC do hub', scope: 'HUB' },
+  { key: 'HUB_AUDIT_READ', description: 'Ler auditoria do hub', scope: 'HUB' },
+  { key: 'PORTAL_DASHBOARD_VIEW', description: 'Ver dashboard do portal', scope: 'PORTAL' },
+  { key: 'TENANT_MEMBER_READ', description: 'Listar membros do tenant', scope: 'PORTAL' },
+  { key: 'TENANT_MEMBER_INVITE', description: 'Convidar novos membros', scope: 'PORTAL' },
+  { key: 'TENANT_MEMBER_ROLE_UPDATE', description: 'Alterar papel de membro', scope: 'PORTAL' },
+  { key: 'TENANT_SETTINGS_READ', description: 'Ver configurações do tenant', scope: 'PORTAL' },
+  { key: 'TENANT_SETTINGS_WRITE', description: 'Editar configurações do tenant', scope: 'PORTAL' },
+  { key: 'TENANT_BILLING_READ', description: 'Ver billing do tenant', scope: 'PORTAL' },
+  { key: 'TENANT_BILLING_WRITE', description: 'Gerenciar billing do tenant', scope: 'PORTAL' },
+  { key: 'AUDIT_READ', description: 'Ler auditoria do tenant', scope: 'PORTAL' },
+  { key: 'TOOL_TASKS_READ', description: 'Ler tasks', scope: 'PORTAL' },
+  { key: 'TOOL_TASKS_WRITE', description: 'Criar/editar/deletar tasks', scope: 'PORTAL' },
+  { key: 'TOOL_FILES_READ', description: 'Ler arquivos', scope: 'PORTAL' },
+  { key: 'TOOL_FILES_WRITE', description: 'Criar arquivos', scope: 'PORTAL' },
+  { key: 'TOOL_REQUESTS_READ', description: 'Ler requests', scope: 'PORTAL' },
+  { key: 'TOOL_REQUESTS_CREATE', description: 'Criar requests', scope: 'PORTAL' },
+  { key: 'TOOL_REQUESTS_APPROVE', description: 'Aprovar/Rejeitar requests', scope: 'PORTAL' },
+  { key: 'TOOL_REPORTS_READ', description: 'Ler reports', scope: 'PORTAL' }
 ];
 
-export const BASE_ROLES: RoleDefinition[] = [
+export const ROLES: RoleDefinition[] = [
+  { key: 'AZA8_ADMIN', name: 'Aza8 Admin', scope: 'HUB', description: 'Acesso total hub' },
+  { key: 'AZA8_SUPPORT', name: 'Aza8 Support', scope: 'HUB', description: 'Suporte somente leitura' },
   {
-    code: 'AZA8_ADMIN',
-    scope: 'GLOBAL_AZA8',
-    description: 'Full access to hub operations and configuration'
+    key: 'AZA8_ACCOUNT_MANAGER',
+    name: 'Account Manager',
+    scope: 'HUB',
+    description: 'Gestão de tenants e ferramentas'
   },
-  {
-    code: 'AZA8_ACCOUNT_MANAGER',
-    scope: 'GLOBAL_AZA8',
-    description: 'Manage tenants and oversee onboarding'
-  },
-  {
-    code: 'AZA8_OPERATOR',
-    scope: 'GLOBAL_AZA8',
-    description: 'Operate hub tooling with limited management capabilities'
-  },
-  {
-    code: 'TENANT_OWNER',
-    scope: 'TENANT',
-    description: 'Full control over tenant operations'
-  },
-  {
-    code: 'TENANT_MANAGER',
-    scope: 'TENANT',
-    description: 'Manage day-to-day tenant operations'
-  },
-  {
-    code: 'TENANT_MARKETING',
-    scope: 'TENANT',
-    description: 'Access to marketing-focused capabilities'
-  },
-  {
-    code: 'TENANT_SUPPLIER',
-    scope: 'TENANT',
-    description: 'Access to supplier and inventory capabilities'
-  }
+  { key: 'OWNER', name: 'Owner', scope: 'PORTAL', description: 'Controle total do tenant' },
+  { key: 'MANAGER', name: 'Manager', scope: 'PORTAL', description: 'Gestão operacional do tenant' },
+  { key: 'MEMBER', name: 'Member', scope: 'PORTAL', description: 'Colaborador padrão' },
+  { key: 'SUPPLIER', name: 'Supplier', scope: 'PORTAL', description: 'Fornecedor convidado' }
 ];
 
-export const ROLE_PERMISSION_MATRIX: RolePermissionsDefinition[] = [
+export const ROLE_PERMISSIONS: RolePermissionDefinition[] = [
   {
-    roleCode: 'AZA8_ADMIN',
-    permissionCodes: [
-      'HUB_TENANTS_READ',
-      'HUB_TENANTS_MANAGE',
-      'HUB_AUDITLOG_READ',
-      'HUB_PLUGINS_MANAGE'
+    role: 'AZA8_ADMIN',
+    permissions: [
+      'HUB_DASHBOARD_VIEW',
+      'HUB_TENANT_READ',
+      'HUB_TENANT_WRITE',
+      'HUB_TENANT_USERS_READ',
+      'HUB_TENANT_USERS_WRITE',
+      'HUB_TOOLS_MANAGE',
+      'HUB_RBAC_VIEW',
+      'HUB_AUDIT_READ'
     ]
   },
   {
-    roleCode: 'AZA8_ACCOUNT_MANAGER',
-    permissionCodes: ['HUB_TENANTS_READ', 'HUB_TENANTS_MANAGE', 'HUB_AUDITLOG_READ']
+    role: 'AZA8_SUPPORT',
+    permissions: ['HUB_DASHBOARD_VIEW', 'HUB_TENANT_READ', 'HUB_TENANT_USERS_READ', 'HUB_AUDIT_READ']
   },
   {
-    roleCode: 'AZA8_OPERATOR',
-    permissionCodes: ['HUB_TENANTS_READ', 'HUB_AUDITLOG_READ']
+    role: 'AZA8_ACCOUNT_MANAGER',
+    permissions: [
+      'HUB_DASHBOARD_VIEW',
+      'HUB_TENANT_READ',
+      'HUB_TENANT_WRITE',
+      'HUB_TENANT_USERS_READ',
+      'HUB_TOOLS_MANAGE',
+      'HUB_AUDIT_READ'
+    ]
   },
   {
-    roleCode: 'TENANT_OWNER',
-    permissionCodes: [
+    role: 'OWNER',
+    permissions: [
+      'PORTAL_DASHBOARD_VIEW',
+      'TENANT_MEMBER_READ',
+      'TENANT_MEMBER_INVITE',
+      'TENANT_MEMBER_ROLE_UPDATE',
       'TENANT_SETTINGS_READ',
-      'TENANT_SETTINGS_MANAGE',
-      'TENANT_MEMBERS_MANAGE',
+      'TENANT_SETTINGS_WRITE',
       'TENANT_BILLING_READ',
-      'TENANT_BILLING_MANAGE',
-      'TENANT_AUDITLOG_READ',
-      'TENANT_PLUGINS_MANAGE',
-      'TENANT_PLUGINS_USE'
+      'TENANT_BILLING_WRITE',
+      'AUDIT_READ',
+      'TOOL_TASKS_READ',
+      'TOOL_TASKS_WRITE',
+      'TOOL_FILES_READ',
+      'TOOL_FILES_WRITE',
+      'TOOL_REQUESTS_READ',
+      'TOOL_REQUESTS_CREATE',
+      'TOOL_REQUESTS_APPROVE',
+      'TOOL_REPORTS_READ'
     ]
   },
   {
-    roleCode: 'TENANT_MANAGER',
-    permissionCodes: [
+    role: 'MANAGER',
+    permissions: [
+      'PORTAL_DASHBOARD_VIEW',
+      'TENANT_MEMBER_READ',
+      'TENANT_MEMBER_INVITE',
       'TENANT_SETTINGS_READ',
-      'TENANT_SETTINGS_MANAGE',
-      'TENANT_MEMBERS_MANAGE',
-      'TENANT_AUDITLOG_READ',
-      'TENANT_PLUGINS_MANAGE',
-      'TENANT_PLUGINS_USE'
+      'TENANT_SETTINGS_WRITE',
+      'AUDIT_READ',
+      'TOOL_TASKS_READ',
+      'TOOL_TASKS_WRITE',
+      'TOOL_FILES_READ',
+      'TOOL_FILES_WRITE',
+      'TOOL_REQUESTS_READ',
+      'TOOL_REQUESTS_CREATE',
+      'TOOL_REPORTS_READ'
     ]
   },
   {
-    roleCode: 'TENANT_MARKETING',
-    permissionCodes: ['TENANT_SETTINGS_READ', 'TENANT_PLUGINS_USE']
+    role: 'MEMBER',
+    permissions: [
+      'PORTAL_DASHBOARD_VIEW',
+      'TOOL_TASKS_READ',
+      'TOOL_TASKS_WRITE',
+      'TOOL_FILES_READ',
+      'TOOL_FILES_WRITE',
+      'TOOL_REQUESTS_READ',
+      'TOOL_REQUESTS_CREATE',
+      'TOOL_REPORTS_READ'
+    ]
   },
   {
-    roleCode: 'TENANT_SUPPLIER',
-    permissionCodes: ['TENANT_SETTINGS_READ', 'TENANT_PLUGINS_USE']
+    role: 'SUPPLIER',
+    permissions: ['PORTAL_DASHBOARD_VIEW', 'TOOL_FILES_READ', 'TOOL_FILES_WRITE', 'TOOL_REQUESTS_READ']
   }
 ];
+
+export const rolePermissionsMap: Record<RoleKey, PermissionKey[]> = ROLE_PERMISSIONS.reduce(
+  (acc, item) => {
+    acc[item.role] = item.permissions;
+    return acc;
+  },
+  {} as Record<RoleKey, PermissionKey[]>
+);

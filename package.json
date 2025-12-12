@@ -12,6 +12,7 @@
     "prisma:generate": "turbo run prisma:generate"
   },
   "devDependencies": {
+    "@aza8/eslint-config": "workspace:*",
     "@types/express": "4.17.21",
     "@types/node": "20.11.30",
     "eslint": "8.57.0",

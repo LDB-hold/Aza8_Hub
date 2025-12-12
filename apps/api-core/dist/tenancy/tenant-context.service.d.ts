@@ -1,11 +1,8 @@
-/// <reference types="node" />
-import { IncomingMessage } from 'http';
 import { TenantContext } from '@aza8/core-domain';
+import { TenantContextStore } from './tenant-context.store.js';
 export declare class TenantContextService {
-    private readonly request;
-    constructor(request: IncomingMessage & {
-        tenantContext?: TenantContext;
-    });
+    private readonly store;
+    constructor(store: TenantContextStore);
     setContext(context: TenantContext): void;
     getContext(): TenantContext;
 }

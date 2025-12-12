@@ -1,4 +1,4 @@
-import { CurrentUserContext } from '@aza8/core-domain';
+import { AuthenticatedRequest } from '../../auth/interfaces.js';
 export declare class MeController {
-    me(currentUser: CurrentUserContext): CurrentUserContext;
+    me(req: AuthenticatedRequest): import("@aza8/core-domain").CurrentUserContext | undefined;
 }

@@ -5,8 +5,10 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 
 API_APP="apps/api-core"
-HUB_APP="apps/hub-web"
-PORTAL_APP="apps/portal-web"
+WEB_APP="apps/web"
+API_PORT="${API_PORT:-3005}"
+WEB_PORT="${WEB_PORT:-3000}"
+LOG_FILE="${LOG_FILE:-/tmp/aza8-start.log}"
 
 declare -a SERVICES_PIDS=()
 declare -a SERVICES_NAMES=()
@@ -35,6 +37,14 @@ ensure_command() {
   fi
 }
 
+ensure_port_free() {
+  local port=$1
+  if lsof -iTCP:"${port}" -sTCP:LISTEN >/dev/null 2>&1; then
+    error "Port ${port} is already in use. Set API_PORT/WEB_PORT or stop the process using it."
+    exit 1
+  fi
+}
+
 cleanup() {
   if [[ ${#SERVICES_PIDS[@]} -eq 0 ]]; then
     return
@@ -55,10 +65,9 @@ trap 'info "Interrupted, stopping..."; exit 130' INT TERM
 info "Running from ${ROOT_DIR}"
 
 ensure_command pnpm
+ensure_command lsof
 
 ensure_env_file "$API_APP"
-ensure_env_file "$HUB_APP"
-ensure_env_file "$PORTAL_APP"
 
 if [[ "${SKIP_INSTALL:-0}" != "1" ]]; then
   info "Installing dependencies (set SKIP_INSTALL=1 to skip)..."
@@ -77,27 +86,30 @@ else
   info "Skipping Prisma migrations (SKIP_MIGRATIONS=1)."
 fi
 
+info "Checking required ports..."
+ensure_port_free "$API_PORT"
+ensure_port_free "$WEB_PORT"
+
 start_service() {
   local name=$1
   shift
 
   info "Starting ${name}..."
-  ("$@") &
+  ("$@") >>"$LOG_FILE" 2>&1 &
   local pid=$!
   SERVICES_PIDS+=("$pid")
   SERVICES_NAMES+=("$name")
   info "${name} running with PID ${pid}"
 }
 
-start_service "API Core" pnpm --filter @aza8/api-core dev
+start_service "API Core" env PORT="$API_PORT" pnpm --filter @aza8/api-core dev
 
-# Give the API time to initialize before bringing up the web apps.
+# Give the API time to initialize before bringing up the web app.
 sleep 2
 
-start_service "Hub Web" pnpm --filter @aza8/hub-web dev
-start_service "Portal Web" pnpm --filter @aza8/portal-web dev
+start_service "Web" env PORT="$WEB_PORT" NEXT_PUBLIC_API_URL="http://localhost:${API_PORT}" pnpm --filter @aza8/web dev
 
-info "All services started. Press Ctrl+C to stop everything."
+info "All services started. API: http://localhost:${API_PORT} | Web: http://localhost:${WEB_PORT} | Logs: ${LOG_FILE}"
 
 for pid in "${SERVICES_PIDS[@]}"; do
   wait "$pid"

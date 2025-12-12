@@ -1,84 +1,29 @@
-import type { PermissionCode } from './rbac-config';
+import type { PermissionKey, RoleKey, RoleScope, ToolKey } from './rbac-config.js';
+import { rolePermissionsMap, ROLES, PERMISSIONS, TOOL_KEYS } from './rbac-config.js';
 
-export type TenantStatus = 'ACTIVE' | 'SUSPENDED' | 'DECOMMISSIONED';
-export type TenantPlan = 'STANDARD' | 'PREMIUM' | 'ENTERPRISE';
-
-export interface TenantConfig {
-  enablePlugins: string[];
-  metadata?: Record<string, unknown>;
-}
+export type { PermissionKey, RoleKey, RoleScope, ToolKey };
+export { rolePermissionsMap, ROLES, PERMISSIONS, TOOL_KEYS };
 
 export interface Tenant {
   id: string;
   slug: string;
   name: string;
-  status: TenantStatus;
-  plan: TenantPlan;
-  config: TenantConfig;
   createdAt: Date;
-  updatedAt: Date;
 }
-
-export type UserStatus = 'ACTIVE' | 'DISABLED' | 'INVITED';
 
 export interface User {
   id: string;
   email: string;
   name: string;
-  status: UserStatus;
-  authProvider: string;
-  authProviderId: string;
+  type: 'HUB' | 'PORTAL';
   createdAt: Date;
-  updatedAt: Date;
 }
 
-export const RoleScope = {
-  GLOBAL_AZA8: 'GLOBAL_AZA8',
-  TENANT: 'TENANT',
-  PLUGIN: 'PLUGIN'
-} as const;
-
-export type RoleScope = (typeof RoleScope)[keyof typeof RoleScope];
-
-export const BaseRole = {
-  AZA8_ADMIN: 'AZA8_ADMIN',
-  AZA8_ACCOUNT_MANAGER: 'AZA8_ACCOUNT_MANAGER',
-  AZA8_OPERATOR: 'AZA8_OPERATOR',
-  TENANT_OWNER: 'TENANT_OWNER',
-  TENANT_MANAGER: 'TENANT_MANAGER',
-  TENANT_MARKETING: 'TENANT_MARKETING',
-  TENANT_SUPPLIER: 'TENANT_SUPPLIER'
-} as const;
-
-export type BaseRole = (typeof BaseRole)[keyof typeof BaseRole];
-
-export interface Role {
-  id: string;
-  scope: RoleScope;
-  key: BaseRole;
-  name: string;
-  description?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  permissions?: { permission: Permission }[];
-}
-
-export type PermissionScope = 'GLOBAL_AZA8' | 'TENANT' | 'PLUGIN';
-
-export interface Permission {
-  id: string;
-  key: PermissionCode;
-  description?: string;
-}
-
-export interface TenantMembership {
+export interface Membership {
   id: string;
   tenantId: string;
   userId: string;
-  roleId: string;
-  role: Role;
-  createdAt: Date;
-  updatedAt: Date;
+  roleKey: RoleKey;
 }
 
 export interface TenantContext {
@@ -89,50 +34,34 @@ export interface TenantContext {
 
 export interface CurrentUserContext {
   user: User;
-  memberships: TenantMembership[];
+  membership: Membership | null;
   tenantContext: TenantContext;
-  roles: BaseRole[];
-  permissions: PermissionCode[];
-}
-
-export interface PluginDefinition {
-  id: string;
-  key: string;
-  name: string;
-  description?: string;
-  type: 'DATA' | 'WORKFLOW' | 'INTEGRATION';
-}
-
-export interface AuditLog {
-  id: string;
-  tenantId: string | null;
-  userId: string;
-  action: string;
-  entity: string;
-  entityId: string;
-  metadata?: Record<string, unknown>;
-  createdAt: Date;
-}
-
-export interface TenantScopedQuery {
-  tenantId: string;
+  role: RoleKey | null;
+  permissions: PermissionKey[];
 }
 
 export const HUB_HOST = 'hub.aza8.com.br';
 
 export const isHubHost = (host?: string | null): boolean => {
-  if (!host) {
-    return false;
-  }
-  return host === HUB_HOST;
+  if (!host) return false;
+  return host.split(':')[0] === HUB_HOST || host.startsWith('hub.');
 };
 
 export const extractTenantSlugFromHost = (host?: string | null): string | null => {
-  if (!host || host === HUB_HOST) {
+  if (!host) return null;
+  const normalized = host.split(':')[0];
+  if (normalized === HUB_HOST || normalized.startsWith('hub.')) {
     return null;
   }
-  const [slug] = host.split('.');
+  const [slug] = normalized.split('.');
   return slug || null;
 };
 
-export * from './rbac-config';
+export const getPermissionsForRole = (role?: RoleKey | null): PermissionKey[] => {
+  if (!role) return [];
+  return rolePermissionsMap[role] ?? [];
+};
+
+export const isToolKey = (tool: string): tool is ToolKey => {
+  return (TOOL_KEYS as readonly string[]).includes(tool);
+};

@@ -1,12 +1,21 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { BaseRole } from '@aza8/core-domain';
-
-import { AuthGuard } from '../../auth/guards/auth.guard.js';
-import { RbacGuard } from '../../rbac/rbac.guard.js';
-import { RequirePermissions, RequireRoles } from '../../rbac/rbac.decorator.js';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '../../auth/auth.guard.js';
+import { PermissionsGuard } from '../../rbac/rbac.guard.js';
+import { RequirePermissions } from '../../rbac/rbac.decorator.js';
 import { TenantsService } from './tenants.service.js';
+import { IsString, MinLength } from 'class-validator';
 
-@Controller('tenants')
+class CreateTenantDto {
+  @IsString()
+  @MinLength(2)
+  name!: string;
+
+  @IsString()
+  @MinLength(2)
+  slug!: string;
+}
+
+@Controller('hub/tenants')
 export class TenantsController {
   constructor(private readonly tenantsService: TenantsService) {}
 
@@ -17,10 +26,16 @@ export class TenantsController {
   }
 
   @Get()
-  @UseGuards(AuthGuard, RbacGuard)
-  @RequireRoles(BaseRole.AZA8_ADMIN)
-  @RequirePermissions('HUB_TENANTS_READ')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermissions('HUB_TENANT_READ')
   list() {
     return this.tenantsService.listTenants();
+  }
+
+  @Post()
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermissions('HUB_TENANT_WRITE')
+  create(@Body() dto: CreateTenantDto) {
+    return this.tenantsService.createTenant(dto);
   }
 }

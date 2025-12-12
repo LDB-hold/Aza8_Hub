@@ -17,6 +17,10 @@ async function bootstrap() {
     }));
     app.useGlobalFilters(new http_exception_filter_js_1.HttpExceptionFilter());
     app.useGlobalInterceptors(new logging_interceptor_js_1.LoggingInterceptor());
+    app.enableCors({
+        origin: true,
+        credentials: true
+    });
     const configService = app.get(app_config_service_js_1.AppConfigService);
     const { port } = configService.apiConfig;
     await app.listen(port);

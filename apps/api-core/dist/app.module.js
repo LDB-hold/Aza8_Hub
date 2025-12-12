@@ -14,6 +14,8 @@ const tenancy_module_js_1 = require("./tenancy/tenancy.module.js");
 const auth_module_js_1 = require("./auth/auth.module.js");
 const rbac_module_js_1 = require("./rbac/rbac.module.js");
 const core_domain_module_js_1 = require("./core/core-domain.module.js");
+const hub_module_js_1 = require("./hub/hub.module.js");
+const portal_module_js_1 = require("./portal/portal.module.js");
 const database_module_js_1 = require("./database/database.module.js");
 let AppModule = class AppModule {
 };
@@ -27,7 +29,9 @@ exports.AppModule = AppModule = __decorate([
             tenancy_module_js_1.TenancyModule,
             auth_module_js_1.AuthModule,
             rbac_module_js_1.RbacModule,
-            core_domain_module_js_1.CoreDomainModule
+            core_domain_module_js_1.CoreDomainModule,
+            hub_module_js_1.HubModule,
+            portal_module_js_1.PortalModule
         ]
     })
 ], AppModule);

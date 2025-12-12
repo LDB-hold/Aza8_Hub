@@ -1,19 +1,10 @@
-import { Module, OnModuleInit } from '@nestjs/common';
-
-import { DatabaseModule } from '../database/database.module.js';
-import { RbacGuard } from './rbac.guard.js';
-import { RbacSyncService } from './rbac-sync.service.js';
+import { Global, Module } from '@nestjs/common';
 import { RbacService } from './rbac.service.js';
+import { PermissionsGuard } from './rbac.guard.js';
 
+@Global()
 @Module({
-  imports: [DatabaseModule],
-  providers: [RbacService, RbacGuard, RbacSyncService],
-  exports: [RbacService, RbacGuard, RbacSyncService]
+  providers: [RbacService, PermissionsGuard],
+  exports: [RbacService, PermissionsGuard]
 })
-export class RbacModule implements OnModuleInit {
-  constructor(private readonly rbacSyncService: RbacSyncService) {}
-
-  async onModuleInit() {
-    await this.rbacSyncService.syncBaseDefinitions();
-  }
-}
+export class RbacModule {}

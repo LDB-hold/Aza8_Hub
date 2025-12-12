@@ -1,132 +1,100 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { Prisma } from '@prisma/client';
-import { BaseRole, CurrentUserContext, RoleScope, TenantContext, User as DomainUser, UserStatus } from '@aza8/core-domain';
+import { RoleKey, CurrentUserContext } from '@aza8/core-domain';
 
 import { PrismaService } from '../database/prisma.service.js';
-import { AppConfigService } from '../config/app-config.service.js';
+import { TenantContextService } from '../tenancy/tenant-context.service.js';
 import { RbacService } from '../rbac/rbac.service.js';
-import { AuthCallbackDto } from './dto/auth-callback.dto.js';
+import { LoginDto } from './dto/login.dto.js';
+
+const HUB_ROLE_BY_EMAIL: Record<string, RoleKey> = {
+  'aza8_admin@aza8.com': 'AZA8_ADMIN',
+  'aza8_support@aza8.com': 'AZA8_SUPPORT'
+};
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly jwtService: JwtService,
-    private readonly configService: AppConfigService,
-    private readonly rbacService: RbacService
+    private readonly tenantContext: TenantContextService,
+    private readonly rbac: RbacService
   ) {}
 
-  async handleCallback(payload: AuthCallbackDto) {
-    const user = await this.prisma.user.upsert({
-      where: { email: payload.email },
-      create: {
-        email: payload.email,
-        name: payload.name,
-        status: 'ACTIVE',
-        authProvider: payload.provider,
-        authProviderId: payload.providerId
-      },
-      update: {
-        name: payload.name,
-        authProvider: payload.provider,
-        authProviderId: payload.providerId
-      }
-    });
-
-    if (payload.tenantSlug) {
-      const tenant = await this.ensureTenant(payload.tenantSlug, payload.tenantName ?? payload.tenantSlug);
-      const role = await this.rbacService.ensureRole(BaseRole.TENANT_OWNER, RoleScope.TENANT);
-      await this.ensureMembership(user.id, tenant.id, role.id);
-    } else {
-      const tenant = await this.ensureHubTenant();
-      const role = await this.rbacService.ensureRole(BaseRole.AZA8_OPERATOR, RoleScope.GLOBAL_AZA8);
-      await this.ensureMembership(user.id, tenant.id, role.id);
-    }
-
-    const token = await this.issueToken(user.id);
-    return { token };
+  async login(payload: LoginDto): Promise<CurrentUserContext> {
+    const tenantContext = this.tenantContext.getContext();
+    return this.buildUserContextByEmail(payload.email, tenantContext);
   }
 
-  async validateToken(token: string, tenantContext: TenantContext): Promise<CurrentUserContext> {
-    try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: this.configService.apiConfig.authSecret
-      });
+  async buildUserContextByEmail(email: string, tenantContext = this.tenantContext.getContext()): Promise<CurrentUserContext> {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    return this.buildUserContext(user.id, tenantContext);
+  }
 
-      const user = await this.prisma.user.findUnique({
-        where: { id: payload.sub }
-      });
+  async buildUserContext(userId: string, tenantContext = this.tenantContext.getContext()): Promise<CurrentUserContext> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
 
-      if (!user) {
-        throw new UnauthorizedException('User not found');
+    if (tenantContext.isHubRequest) {
+      if (user.type !== 'HUB') {
+        throw new UnauthorizedException('Hub access denied');
       }
-
-      const access = await this.rbacService.getEffectiveRolesAndPermissionsForRequest(user.id, tenantContext);
-
+      const role = HUB_ROLE_BY_EMAIL[user.email] ?? 'AZA8_SUPPORT';
+      const permissions = this.rbac.getPermissionsForRole(role);
       return {
-        user: this.toDomainUser(user),
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          type: user.type as 'HUB' | 'PORTAL',
+          createdAt: user.createdAt
+        },
+        membership: null,
         tenantContext,
-        ...access
+        role,
+        permissions
       };
-    } catch (error) {
-      throw new UnauthorizedException('Invalid token');
     }
-  }
 
-  private async issueToken(userId: string): Promise<string> {
-    return this.jwtService.signAsync({ sub: userId }, {
-      secret: this.configService.apiConfig.authSecret,
-      expiresIn: '7d'
+    if (!tenantContext.tenantId) {
+      throw new UnauthorizedException('Tenant missing');
+    }
+
+    if (user.type !== 'PORTAL') {
+      throw new UnauthorizedException('Portal access denied');
+    }
+
+    const membership = await this.prisma.membership.findUnique({
+      where: { tenantId_userId: { tenantId: tenantContext.tenantId, userId: user.id } }
     });
-  }
 
-  private async ensureTenant(slug: string, name: string) {
-    return this.prisma.tenant.upsert({
-      where: { slug },
-      update: { name },
-      create: {
-        slug,
-        name,
-        status: 'ACTIVE',
-        plan: 'STANDARD',
-        config: {}
-      }
-    });
-  }
+    if (!membership) {
+      throw new UnauthorizedException('Membership not found for tenant');
+    }
 
-  private async ensureHubTenant() {
-    return this.ensureTenant('aza8', 'Aza8 HQ');
-  }
+    const role = membership.roleKey as RoleKey;
+    const permissions = this.rbac.getPermissionsForRole(role);
 
-  private async ensureMembership(userId: string, tenantId: string, roleId: string) {
-    await this.prisma.tenantMembership.upsert({
-      where: {
-        tenantId_userId_roleId: {
-          tenantId,
-          userId,
-          roleId
-        }
-      },
-      update: {},
-      create: {
-        tenantId,
-        userId,
-        roleId
-      }
-    });
-  }
-
-  private toDomainUser(user: Prisma.UserGetPayload<{}>): DomainUser {
     return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      status: user.status as UserStatus,
-      authProvider: user.authProvider,
-      authProviderId: user.authProviderId,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        type: user.type as 'HUB' | 'PORTAL',
+        createdAt: user.createdAt
+      },
+      membership: {
+        id: membership.id,
+        tenantId: membership.tenantId,
+        userId: membership.userId,
+        roleKey: membership.roleKey as RoleKey
+      },
+      tenantContext,
+      role,
+      permissions
     };
   }
 }

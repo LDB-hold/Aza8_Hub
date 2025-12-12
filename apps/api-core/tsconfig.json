@@ -3,7 +3,8 @@
   "extends": "@aza8/tsconfig/tsconfig.nest",
   "compilerOptions": {
     "outDir": "dist",
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "rootDir": "./src"
   },
-  "include": ["src", "prisma"]
+  "include": ["src"]
 }

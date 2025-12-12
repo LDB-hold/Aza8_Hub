@@ -6,6 +6,8 @@ import { TenancyModule } from './tenancy/tenancy.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { RbacModule } from './rbac/rbac.module.js';
 import { CoreDomainModule } from './core/core-domain.module.js';
+import { HubModule } from './hub/hub.module.js';
+import { PortalModule } from './portal/portal.module.js';
 import { DatabaseModule } from './database/database.module.js';
 
 @Module({
@@ -16,7 +18,9 @@ import { DatabaseModule } from './database/database.module.js';
     TenancyModule,
     AuthModule,
     RbacModule,
-    CoreDomainModule
+    CoreDomainModule,
+    HubModule,
+    PortalModule
   ]
 })
 export class AppModule {}

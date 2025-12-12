@@ -9,49 +9,37 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RbacGuard = void 0;
+exports.PermissionsGuard = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
-const tenant_context_service_js_1 = require("../tenancy/tenant-context.service.js");
 const rbac_decorator_js_1 = require("./rbac.decorator.js");
-let RbacGuard = class RbacGuard {
-    constructor(reflector, tenantContextService) {
+let PermissionsGuard = class PermissionsGuard {
+    constructor(reflector) {
         this.reflector = reflector;
-        this.tenantContextService = tenantContextService;
     }
     canActivate(context) {
-        const requiredRoles = this.reflector.getAllAndOverride(rbac_decorator_js_1.REQUIRE_ROLES_METADATA_KEY, [
+        const required = this.reflector.getAllAndOverride(rbac_decorator_js_1.REQUIRE_PERMISSIONS_METADATA_KEY, [
             context.getHandler(),
             context.getClass()
         ]);
-        const requiredPermissions = this.reflector.getAllAndOverride(rbac_decorator_js_1.REQUIRE_PERMISSIONS_METADATA_KEY, [context.getHandler(), context.getClass()]);
-        if ((!requiredRoles || requiredRoles.length === 0) && (!requiredPermissions || requiredPermissions.length === 0)) {
+        if (!required || required.length === 0) {
             return true;
         }
         const request = context.switchToHttp().getRequest();
         const userContext = request.userContext;
-        if (!userContext ||
-            !Array.isArray(userContext.roles) ||
-            !Array.isArray(userContext.permissions) ||
-            !userContext.tenantContext) {
-            throw new common_1.UnauthorizedException();
+        if (!userContext) {
+            throw new common_1.UnauthorizedException('Session missing');
         }
-        const tenantContext = this.tenantContextService.getContext();
-        if (userContext.tenantContext.isHubRequest !== tenantContext.isHubRequest ||
-            (!tenantContext.isHubRequest && userContext.tenantContext.tenantId !== tenantContext.tenantId)) {
-            throw new common_1.UnauthorizedException();
+        const hasAll = required.every((perm) => userContext.permissions.includes(perm));
+        if (!hasAll) {
+            throw new common_1.ForbiddenException('Missing permissions');
         }
-        const hasRoles = !requiredRoles || requiredRoles.length === 0 || requiredRoles.some((role) => userContext.roles.includes(role));
-        const hasPermissions = !requiredPermissions ||
-            requiredPermissions.length === 0 ||
-            requiredPermissions.every((permission) => userContext.permissions.includes(permission));
-        return hasRoles && hasPermissions;
+        return true;
     }
 };
-exports.RbacGuard = RbacGuard;
-exports.RbacGuard = RbacGuard = __decorate([
+exports.PermissionsGuard = PermissionsGuard;
+exports.PermissionsGuard = PermissionsGuard = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [core_1.Reflector,
-        tenant_context_service_js_1.TenantContextService])
-], RbacGuard);
+    __metadata("design:paramtypes", [core_1.Reflector])
+], PermissionsGuard);
 //# sourceMappingURL=rbac.guard.js.map

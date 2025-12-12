@@ -29,8 +29,7 @@ let TenantsService = class TenantsService {
                 id: true,
                 name: true,
                 slug: true,
-                status: true,
-                plan: true
+                createdAt: true
             }
         });
         if (!tenant) {
@@ -48,10 +47,22 @@ let TenantsService = class TenantsService {
                 id: true,
                 slug: true,
                 name: true,
-                status: true,
-                plan: true
+                createdAt: true
             },
             orderBy: { createdAt: 'desc' }
+        });
+    }
+    async createTenant(input) {
+        const context = this.tenantContext.getContext();
+        if (!context.isHubRequest) {
+            throw new common_1.BadRequestException('Only hub requests may create tenants');
+        }
+        return this.prisma.tenant.create({
+            data: {
+                id: `tenant_${input.slug}`,
+                name: input.name,
+                slug: input.slug
+            }
         });
     }
 };

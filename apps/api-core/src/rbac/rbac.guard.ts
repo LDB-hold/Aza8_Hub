@@ -1,65 +1,34 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { BaseRole, PermissionCode } from '@aza8/core-domain';
-
-import { AuthenticatedRequest } from '../auth/interfaces/auth-user.interface.js';
-import { TenantContextService } from '../tenancy/tenant-context.service.js';
-import { REQUIRE_PERMISSIONS_METADATA_KEY, REQUIRE_ROLES_METADATA_KEY } from './rbac.decorator.js';
+import { PermissionKey } from '@aza8/core-domain';
+import { REQUIRE_PERMISSIONS_METADATA_KEY } from './rbac.decorator.js';
 
 @Injectable()
-export class RbacGuard implements CanActivate {
-  constructor(
-    private readonly reflector: Reflector,
-    private readonly tenantContextService: TenantContextService
-  ) {}
+export class PermissionsGuard implements CanActivate {
+  constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<BaseRole[]>(REQUIRE_ROLES_METADATA_KEY, [
+    const required = this.reflector.getAllAndOverride<PermissionKey[]>(REQUIRE_PERMISSIONS_METADATA_KEY, [
       context.getHandler(),
       context.getClass()
     ]);
 
-    const requiredPermissions = this.reflector.getAllAndOverride<PermissionCode[]>(
-      REQUIRE_PERMISSIONS_METADATA_KEY,
-      [context.getHandler(), context.getClass()]
-    );
-
-    if ((!requiredRoles || requiredRoles.length === 0) && (!requiredPermissions || requiredPermissions.length === 0)) {
+    if (!required || required.length === 0) {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const request = context.switchToHttp().getRequest();
     const userContext = request.userContext;
-    if (
-      !userContext ||
-      !Array.isArray(userContext.roles) ||
-      !Array.isArray(userContext.permissions) ||
-      !userContext.tenantContext
-    ) {
-      throw new UnauthorizedException();
+
+    if (!userContext) {
+      throw new UnauthorizedException('Session missing');
     }
 
-    const tenantContext = this.tenantContextService.getContext();
-    if (
-      userContext.tenantContext.isHubRequest !== tenantContext.isHubRequest ||
-      (!tenantContext.isHubRequest && userContext.tenantContext.tenantId !== tenantContext.tenantId)
-    ) {
-      throw new UnauthorizedException();
+    const hasAll = required.every((perm) => userContext.permissions.includes(perm));
+    if (!hasAll) {
+      throw new ForbiddenException('Missing permissions');
     }
 
-    const hasRoles =
-      !requiredRoles || requiredRoles.length === 0 || requiredRoles.some((role) => userContext.roles.includes(role));
-
-    const hasPermissions =
-      !requiredPermissions ||
-      requiredPermissions.length === 0 ||
-      requiredPermissions.every((permission) => userContext.permissions.includes(permission));
-
-    return hasRoles && hasPermissions;
+    return true;
   }
 }
