@@ -15,4 +15,5 @@ export declare class RbacService {
     getEffectiveAccessForUser(userId: string, tenantContext: TenantContext): Promise<Pick<CurrentUserContext, 'memberships' | 'roles' | 'permissions'>>;
     private resolveMemberships;
     private collectPermissions;
+    private formatRoleName;
 }

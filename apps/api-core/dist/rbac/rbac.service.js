@@ -27,9 +27,16 @@ let RbacService = class RbacService {
             throw new Error(`Role ${key} is not allowed for scope ${scope}`);
         }
         const existing = await this.prisma.role.findFirst({ where: { key } });
+        const formattedName = this.formatRoleName(definition.code);
         if (existing) {
-            if (existing.scope !== definition.scope) {
-                await this.prisma.role.update({ where: { id: existing.id }, data: { scope: definition.scope } });
+            const requiresUpdate = existing.scope !== definition.scope ||
+                existing.name !== formattedName ||
+                existing.description !== definition.description;
+            if (requiresUpdate) {
+                await this.prisma.role.update({
+                    where: { id: existing.id },
+                    data: { scope: definition.scope, name: formattedName, description: definition.description }
+                });
             }
             return existing;
         }
@@ -37,8 +44,8 @@ let RbacService = class RbacService {
             data: {
                 key,
                 scope: definition.scope,
-                name: key.replaceAll('_', ' '),
-                description: `${key} role for ${definition.scope}`
+                name: formattedName,
+                description: definition.description
             }
         });
     }
@@ -89,6 +96,9 @@ let RbacService = class RbacService {
             const permissionDefinition = core_domain_1.BASE_PERMISSIONS.find((permission) => permission.code === code);
             return permissionDefinition?.scope === scope;
         });
+    }
+    formatRoleName(code) {
+        return code.replaceAll('_', ' ');
     }
 };
 exports.RbacService = RbacService;
