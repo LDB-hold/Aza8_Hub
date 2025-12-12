@@ -7,6 +7,9 @@
   postgresql://postgres:DqHG7CWKTg7nItMM@db.qcibldbkaezayxldrtuc.supabase.co:5432/postgres?sslmode=require
   ```
 - Os apps web podem continuar usando seus `.env` locais, mas não precisam de Postgres próprio.
+- Os apps `apps/hub-web` e `apps/portal-web` precisam de arquivos `.env` locais antes de rodar o `start.sh`.
+  - O script valida a existência de `apps/hub-web/.env` e `apps/portal-web/.env` logo no início.
+  - Não há arquivos `.env.example` nesses diretórios, então crie os `.env` manualmente conforme as variáveis necessárias.
 
 ## Execução do monorepo
 1. Garanta que você está autenticado no Supabase (a instância já está exposta no host acima, sem necessidade de Docker local).
