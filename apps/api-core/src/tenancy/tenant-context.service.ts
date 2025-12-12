@@ -6,7 +6,7 @@ import { TenantContext } from '@aza8/core-domain';
 const defaultContext: TenantContext = {
   tenantId: null,
   tenantSlug: null,
-  isHubRequest: false
+  isHubRequest: true
 };
 
 @Injectable({ scope: Scope.REQUEST })
