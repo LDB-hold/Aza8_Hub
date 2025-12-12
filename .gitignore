@@ -5,7 +5,8 @@ pnpm-lock.yaml
 .dist
 .env
 .env.*
+!.env.example
+.build
 .prisma
 .DS_Store
 coverage
-.build
