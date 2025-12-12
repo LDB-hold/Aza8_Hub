@@ -1,4 +1,4 @@
-import type { PermissionCode } from './rbac-config.js';
+import type { PermissionCode } from './rbac-config';
 
 export type TenantStatus = 'ACTIVE' | 'SUSPENDED' | 'DECOMMISSIONED';
 export type TenantPlan = 'STANDARD' | 'PREMIUM' | 'ENTERPRISE';
@@ -135,4 +135,4 @@ export const extractTenantSlugFromHost = (host?: string | null): string | null =
   return slug || null;
 };
 
-export * from './rbac-config.js';
+export * from './rbac-config';
