@@ -1,4 +1,4 @@
-import { BaseRole, RoleScope } from '@aza8/core-domain';
+import { BaseRole, CurrentUserContext, RoleScope, TenantContext } from '@aza8/core-domain';
 import { PrismaService } from '../database/prisma.service.js';
 export declare class RbacService {
     private readonly prisma;
@@ -12,4 +12,7 @@ export declare class RbacService {
         createdAt: Date;
         updatedAt: Date;
     }>;
+    getEffectiveAccessForUser(userId: string, tenantContext: TenantContext): Promise<Pick<CurrentUserContext, 'memberships' | 'roles' | 'permissions'>>;
+    private resolveMemberships;
+    private collectPermissions;
 }

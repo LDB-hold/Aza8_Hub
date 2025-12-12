@@ -22,7 +22,8 @@ let RbacGuard = class RbacGuard {
             context.getHandler(),
             context.getClass()
         ]);
-        if (!requiredRoles || requiredRoles.length === 0) {
+        const requiredPermissions = this.reflector.getAllAndOverride(rbac_decorator_js_1.REQUIRE_PERMISSIONS_KEY, [context.getHandler(), context.getClass()]);
+        if ((!requiredRoles || requiredRoles.length === 0) && (!requiredPermissions || requiredPermissions.length === 0)) {
             return true;
         }
         const request = context.switchToHttp().getRequest();
@@ -30,7 +31,11 @@ let RbacGuard = class RbacGuard {
         if (!userContext) {
             throw new common_1.UnauthorizedException();
         }
-        return requiredRoles.some((role) => userContext.roles.includes(role));
+        const hasRoles = !requiredRoles || requiredRoles.length === 0 || requiredRoles.some((role) => userContext.roles.includes(role));
+        const hasPermissions = !requiredPermissions ||
+            requiredPermissions.length === 0 ||
+            requiredPermissions.every((permission) => userContext.permissions.includes(permission));
+        return hasRoles && hasPermissions;
     }
 };
 exports.RbacGuard = RbacGuard;

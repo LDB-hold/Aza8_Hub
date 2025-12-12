@@ -58,24 +58,16 @@ let AuthService = class AuthService {
                 secret: this.configService.apiConfig.authSecret
             });
             const user = await this.prisma.user.findUnique({
-                where: { id: payload.sub },
-                include: {
-                    memberships: {
-                        include: { role: true }
-                    }
-                }
+                where: { id: payload.sub }
             });
             if (!user) {
                 throw new common_1.UnauthorizedException('User not found');
             }
-            const filteredMemberships = this.filterMemberships(user.memberships, tenantContext);
-            const memberships = this.normalizeMemberships(filteredMemberships);
-            const roles = memberships.map((membership) => membership.role.key);
+            const access = await this.rbacService.getEffectiveAccessForUser(user.id, tenantContext);
             return {
                 user: this.toDomainUser(user),
-                memberships,
                 tenantContext,
-                roles
+                ...access
             };
         }
         catch (error) {
@@ -120,26 +112,6 @@ let AuthService = class AuthService {
                 roleId
             }
         });
-    }
-    filterMemberships(memberships, tenantContext) {
-        if (tenantContext.isHubRequest) {
-            return memberships.filter((membership) => membership.role.scope === core_domain_1.RoleScope.GLOBAL_AZA8);
-        }
-        if (!tenantContext.tenantId) {
-            return [];
-        }
-        return memberships.filter((membership) => membership.tenantId === tenantContext.tenantId);
-    }
-    normalizeMemberships(memberships) {
-        return memberships.map((membership) => ({
-            ...membership,
-            role: {
-                ...membership.role,
-                scope: membership.role.scope,
-                key: membership.role.key,
-                description: membership.role.description ?? undefined
-            }
-        }));
     }
     toDomainUser(user) {
         return {

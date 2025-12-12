@@ -39,6 +39,7 @@ __decorate([
     (0, common_1.Get)(),
     (0, common_1.UseGuards)(auth_guard_js_1.AuthGuard, rbac_guard_js_1.RbacGuard),
     (0, rbac_decorator_js_1.RequireRoles)(core_domain_1.BaseRole.AZA8_ADMIN),
+    (0, rbac_decorator_js_1.RequirePermissions)('HUB_TENANTS_READ'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)

@@ -11,23 +11,83 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RbacService = void 0;
 const common_1 = require("@nestjs/common");
+const core_domain_1 = require("@aza8/core-domain");
 const prisma_service_js_1 = require("../database/prisma.service.js");
+const roleDefinitionsByCode = new Map(core_domain_1.BASE_ROLES.map((role) => [role.code, role]));
 let RbacService = class RbacService {
     constructor(prisma) {
         this.prisma = prisma;
     }
     async ensureRole(key, scope) {
-        const existing = await this.prisma.role.findFirst({ where: { key, scope } });
+        const definition = roleDefinitionsByCode.get(key);
+        if (!definition) {
+            throw new Error(`Unknown role code: ${key}`);
+        }
+        if (definition.scope !== scope) {
+            throw new Error(`Role ${key} is not allowed for scope ${scope}`);
+        }
+        const existing = await this.prisma.role.findFirst({ where: { key } });
         if (existing) {
+            if (existing.scope !== definition.scope) {
+                await this.prisma.role.update({ where: { id: existing.id }, data: { scope: definition.scope } });
+            }
             return existing;
         }
         return this.prisma.role.create({
             data: {
                 key,
-                scope,
+                scope: definition.scope,
                 name: key.replaceAll('_', ' '),
-                description: `${key} role for ${scope}`
+                description: `${key} role for ${definition.scope}`
             }
+        });
+    }
+    async getEffectiveAccessForUser(userId, tenantContext) {
+        const memberships = await this.resolveMemberships(userId, tenantContext);
+        const roles = memberships.map((membership) => membership.role.key);
+        const permissions = this.collectPermissions(memberships, tenantContext);
+        return { memberships, roles, permissions };
+    }
+    async resolveMemberships(userId, tenantContext) {
+        if (!tenantContext.isHubRequest && !tenantContext.tenantId) {
+            return [];
+        }
+        const memberships = await this.prisma.tenantMembership.findMany({
+            where: {
+                userId,
+                ...(tenantContext.isHubRequest
+                    ? { role: { scope: core_domain_1.RoleScope.GLOBAL_AZA8 } }
+                    : { tenantId: tenantContext.tenantId ?? undefined, role: { scope: core_domain_1.RoleScope.TENANT } })
+            },
+            include: {
+                role: {
+                    include: {
+                        permissions: {
+                            include: {
+                                permission: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        return memberships.map((membership) => ({
+            ...membership,
+            role: {
+                ...membership.role,
+                scope: membership.role.scope,
+                key: membership.role.key,
+                description: membership.role.description ?? undefined
+            }
+        }));
+    }
+    collectPermissions(memberships, tenantContext) {
+        const scope = tenantContext.isHubRequest ? core_domain_1.RoleScope.GLOBAL_AZA8 : core_domain_1.RoleScope.TENANT;
+        const permissionCodes = memberships.flatMap((membership) => (membership.role.permissions ?? []).map((rp) => rp.permission.key));
+        const uniqueCodes = Array.from(new Set(permissionCodes));
+        return uniqueCodes.filter((code) => {
+            const permissionDefinition = core_domain_1.BASE_PERMISSIONS.find((permission) => permission.code === code);
+            return permissionDefinition?.scope === scope;
         });
     }
 };

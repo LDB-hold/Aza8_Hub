@@ -18,7 +18,5 @@ export declare class AuthService {
     private ensureTenant;
     private ensureHubTenant;
     private ensureMembership;
-    private filterMemberships;
-    private normalizeMemberships;
     private toDomainUser;
 }
