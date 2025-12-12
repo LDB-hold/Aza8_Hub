@@ -1,5 +1,9 @@
-# Itens de melhoria no `PrismaService`
+# Status da revisão do `PrismaService`
 
-1. **Correção/robustez:** quando `tenantContext` está ausente, o middleware de tenancy apenas registra um aviso e prossegue (linhas 73-80), mesmo em modo estrito. Isso permite que consultas sensíveis aconteçam sem isolamento algum. Seria mais seguro lançar exceção quando `enforcementMode` estiver como `strict`, garantindo que nenhuma operação prossiga sem contexto de locatário definido.
-2. **Bug de dados em gravações:** `applyTenantIdToData` retorna apenas `{ tenantId }` quando `data` é `undefined` (linhas 208-221). Em operações de criação/atualização isso descarta silenciosamente todos os campos enviados, o que pode gerar payloads inválidos e erros difíceis de rastrear. O ideal é preservar o objeto original ou interromper a execução sinalizando que o corpo da requisição está vazio.
-3. **Limpeza/clareza de código:** o middleware de tenancy tipa `params` e `next` como `any` (linha 68), o que mascara contratos do Prisma e abre espaço para acessos incorretos a propriedades. Declarar explicitamente `params: Prisma.MiddlewareParams` e o tipo de `next` melhora a leitura, habilita autocompletar e evita bugs sutis ao refatorar.
+Os pontos abaixo já estão endereçados no código atual e servem como referência para evitar regressões:
+
+1. **Enforcement em modo estrito:** o middleware bloqueia operações quando o `TenantContext` está ausente ou sem `tenantId` em `TENANCY_ENFORCEMENT_MODE=strict`, garantindo isolamento obrigatório.
+2. **Preservação de payloads:** `applyTenantIdToData` lança erro se `data` estiver ausente/nulo em gravações tenant-scoped, evitando descartar campos enviados.
+3. **Tipagem explícita:** `tenancyMiddleware` tipa `params` como `Prisma.MiddlewareParams` e `next` como função de middleware, garantindo autocompletar e validação de contratos do Prisma.
+
+Caso surjam novos gaps, registre-os aqui ou remova este arquivo se deixar de ser necessário para o fluxo de revisão.

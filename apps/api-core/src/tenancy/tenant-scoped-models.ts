@@ -1,4 +1,5 @@
-// TODO: Mirror this list in docs/tenancy.md so model classifications stay aligned with enforcement.
+// Modelos que recebem tenantId automaticamente via PrismaService.
+// Mantenha esta lista sincronizada com docs/tenancy.md para garantir consistência.
 export const TENANT_SCOPED_MODELS = [
   'TenantMembership',
   'TenantPlugin',
