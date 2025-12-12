@@ -185,10 +185,10 @@ export const ROLE_PERMISSION_MATRIX: RolePermissionsDefinition[] = [
   },
   {
     roleCode: 'TENANT_MARKETING',
-    permissionCodes: ['TENANT_PLUGINS_USE']
+    permissionCodes: ['TENANT_SETTINGS_READ', 'TENANT_PLUGINS_USE']
   },
   {
     roleCode: 'TENANT_SUPPLIER',
-    permissionCodes: ['TENANT_PLUGINS_USE']
+    permissionCodes: ['TENANT_SETTINGS_READ', 'TENANT_PLUGINS_USE']
   }
 ];

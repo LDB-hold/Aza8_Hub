@@ -29,10 +29,21 @@ export class RbacService {
     }
 
     const existing = await this.prisma.role.findFirst({ where: { key } });
+    const formattedName = this.formatRoleName(definition.code);
+
     if (existing) {
-      if (existing.scope !== definition.scope) {
-        await this.prisma.role.update({ where: { id: existing.id }, data: { scope: definition.scope } });
+      const requiresUpdate =
+        existing.scope !== definition.scope ||
+        existing.name !== formattedName ||
+        existing.description !== definition.description;
+
+      if (requiresUpdate) {
+        await this.prisma.role.update({
+          where: { id: existing.id },
+          data: { scope: definition.scope, name: formattedName, description: definition.description }
+        });
       }
+
       return existing;
     }
 
@@ -40,8 +51,8 @@ export class RbacService {
       data: {
         key,
         scope: definition.scope,
-        name: key.replaceAll('_', ' '),
-        description: `${key} role for ${definition.scope}`
+        name: formattedName,
+        description: definition.description
       }
     });
   }
@@ -110,5 +121,9 @@ export class RbacService {
       const permissionDefinition = BASE_PERMISSIONS.find((permission) => permission.code === code);
       return permissionDefinition?.scope === scope;
     }) as PermissionCode[];
+  }
+
+  private formatRoleName(code: BaseRole) {
+    return code.replaceAll('_', ' ');
   }
 }
