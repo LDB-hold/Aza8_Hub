@@ -53,7 +53,11 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
         }
         const tenantContext = this.tenantContextStore.getContext();
         if (!tenantContext) {
-            this.logger.warn(`Tenant context missing for model ${params.model} action ${params.action}; skipping enforcement`);
+            const message = `Tenant context missing for model ${params.model} action ${params.action}`;
+            if (this.enforcementMode === 'strict') {
+                throw new Error(`${message}; enforcement mode is strict`);
+            }
+            this.logger.warn(`${message}; skipping enforcement`);
             return next(params);
         }
         if (tenantContext.isHubRequest) {
@@ -90,13 +94,13 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
         const tenantId = tenantContext.tenantId;
         const scopedArgs = args ? { ...args } : {};
         if (action === 'createMany') {
-            scopedArgs.data = this.applyTenantIdToData(scopedArgs.data, tenantId);
+            scopedArgs.data = this.applyTenantIdToData(scopedArgs.data, tenantId, model, action);
             return scopedArgs;
         }
         if (action === 'upsert') {
             scopedArgs.where = this.applyScopedUniqueWhere(scopedArgs.where, tenantContext, model, action);
-            scopedArgs.create = this.applyTenantIdToData(scopedArgs.create, tenantId);
-            scopedArgs.update = this.applyTenantIdToData(scopedArgs.update, tenantId);
+            scopedArgs.create = this.applyTenantIdToData(scopedArgs.create, tenantId, model, action);
+            scopedArgs.update = this.applyTenantIdToData(scopedArgs.update, tenantId, model, action);
             return scopedArgs;
         }
         if (action === 'update' || action === 'delete') {
@@ -106,7 +110,7 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
             scopedArgs.where = this.applyScopedWhere(scopedArgs.where, tenantContext, model, action);
         }
         if (scopedArgs.data !== undefined) {
-            scopedArgs.data = this.applyTenantIdToData(scopedArgs.data, tenantId);
+            scopedArgs.data = this.applyTenantIdToData(scopedArgs.data, tenantId, model, action);
         }
         return scopedArgs;
     }
@@ -145,9 +149,9 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
         }
         return scopedArgs;
     }
-    applyTenantIdToData(data, tenantId) {
-        if (!data) {
-            return { tenantId };
+    applyTenantIdToData(data, tenantId, model, action) {
+        if (data === undefined || data === null) {
+            throw new Error(`Cannot apply tenantId: data payload is missing for tenant-scoped write on ${model}.${action}`);
         }
         if (Array.isArray(data)) {
             return data.map((row) => ({ ...row, tenantId }));
