@@ -40,9 +40,13 @@ Se não quiser rodar migrations, use `SKIP_MIGRATIONS=1 ./start.sh` (opcional).
 
 > Importante: não suba container Postgres local – use a instância remota indicada.
 
+## Arquivos locais ignorados
+- `config.toml`: configurações do Codex/MCP com credenciais sensíveis. Fica apenas no ambiente local e já está no `.gitignore`.
+- `.Temp-logs/`: logs gerados pelo `start.sh` com saída completa dos serviços. São rotacionados automaticamente e não devem ser versionados.
+
 ## Tenancy: monitorar e endurecer
-- Ambiente API: ajuste `TENANCY_ENFORCEMENT_MODE` em `apps/api-core/.env` (padrão `warn`; use `strict` após validações).
+- Ambiente API: use `TENANCY_ENFORCEMENT_MODE=strict` em `apps/api-core/.env` (padrão já configurado).
 - Fluxo recomendado:
-  1. Inicie em `warn` e acompanhe os logs do `TenancyMiddleware` para detectar rotas que ainda não aplicam o contexto de tenant.
-  2. Corrija os pontos sinalizados até os warnings cessarem.
-  3. Mude para `TENANCY_ENFORCEMENT_MODE=strict` para bloquear requisições sem contexto de tenant válido.
+  1. Observe os logs do `TenancyMiddleware` para detectar rotas que ainda não aplicam o contexto de tenant.
+  2. Corrija os pontos sinalizados até não haver warnings.
+  3. Mantenha `strict` para bloquear requisições sem contexto de tenant válido.

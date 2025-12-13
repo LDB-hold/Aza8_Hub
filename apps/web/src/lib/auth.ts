@@ -63,7 +63,7 @@ export function authGuard(req: NextRequest): NextResponse | null {
 }
 
 export function attachTenantHeaders(res: NextResponse, req: NextRequest) {
-  const tenant = parseTenantFromHost(req.headers.get('host'));
+  const tenant = parseTenantFromHost(req.headers.get('x-forwarded-host') ?? req.headers.get('host'));
   res.headers.set('x-tenant-slug', tenant.tenantKey);
   res.headers.set('x-tenant-key', tenant.tenantKey);
   res.headers.set('x-is-hub', tenant.isHub ? 'true' : 'false');

@@ -4,11 +4,12 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 
-C_RESET="\033[0m"
-C_TITLE="\033[1;36m"
-C_OK="\033[1;32m"
-C_WARN="\033[1;33m"
-C_ERR="\033[1;31m"
+# ANSI colors (use $'..' so escape codes are interpreted correctly in printf/echo)
+C_RESET=$'\033[0m'
+C_TITLE=$'\033[1;36m'
+C_OK=$'\033[1;32m'
+C_WARN=$'\033[1;33m'
+C_ERR=$'\033[1;31m'
 
 API_APP="apps/api-core"
 WEB_APP="apps/web"
@@ -25,6 +26,7 @@ CONSOLE_DEVICE="/dev/null"
 if [[ -t 1 && -w /dev/tty ]]; then
   CONSOLE_DEVICE="/dev/tty"
 fi
+MAIN_PGID=$(ps -o pgid= $$ 2>/dev/null | tr -d ' ' || echo $$)
 
 console_msg() {
   if [[ "$CONSOLE_DEVICE" == "/dev/null" ]]; then
@@ -56,13 +58,19 @@ console_msg_list_item() {
   console_msg "  • ${label}: ${value}" "$color"
 }
 
-console_section "LOG OUTPUT" "$C_TITLE"
-console_msg_list_item "Arquivo" "$LOG_FILE" "$C_TITLE"
-console_msg_list_item "Monitorar" "tail -f $LOG_FILE" "$C_TITLE"
+# Terminal: mostrar apenas status limpo; logs completos vão para o arquivo.
+console_msg "======================================== AZA8 HUB - LOG OUTPUT ========================================" "$C_TITLE"
+printf -v __line 'Arquivo     : %s' "$LOG_FILE"
+console_msg "$__line" "$C_TITLE"
+printf -v __line 'Monitorar   : %s' "tail -f $LOG_FILE"
+console_msg "$__line" "$C_TITLE"
+console_msg "================================================================================" "$C_TITLE"
 
-exec >>"$LOG_FILE" 2>&1
+# Redireciona stdout/stderr para o log, removendo sequências ANSI e CR (mantém o log legível).
+exec > >(awk '{ gsub(/\r/, ""); gsub(/\033\[[0-9;]*[mK]/, ""); print }' >>"$LOG_FILE") 2>&1
 
 declare -a SERVICES_PIDS=()
+declare -a SERVICES_PGIDS=()
 declare -a SERVICES_NAMES=()
 WARN_COUNT=0
 ERROR_COUNT=0
@@ -157,6 +165,38 @@ ensure_port_free() {
   fi
 }
 
+run_with_session() {
+  if command -v setsid >/dev/null 2>&1; then
+    setsid "$@"
+  elif command -v python3 >/dev/null 2>&1; then
+    python3 - "$@" <<'PY'
+import os
+import sys
+
+os.setsid()
+os.execvp(sys.argv[1], sys.argv[1:])
+PY
+  else
+    "$@"
+  fi
+}
+
+terminate_process_tree() {
+  local root_pid=$1
+  local signal=${2:-TERM}
+  if [[ -z "$root_pid" ]]; then
+    return
+  fi
+  if command -v pgrep >/dev/null 2>&1; then
+    local child
+    while IFS= read -r child; do
+      [[ -z "$child" ]] && continue
+      terminate_process_tree "$child" "$signal"
+    done < <(pgrep -P "$root_pid" 2>/dev/null || true)
+  fi
+  kill "-${signal}" "$root_pid" >/dev/null 2>&1 || true
+}
+
 cleanup() {
   if [[ ${#SERVICES_PIDS[@]} -eq 0 ]]; then
     return
@@ -164,17 +204,41 @@ cleanup() {
 
   console_status "Encerrando serviços..."
   info "Shutting down services..."
-  for pid in "${SERVICES_PIDS[@]}"; do
-    if kill -0 "$pid" >/dev/null 2>&1; then
-      kill "$pid" >/dev/null 2>&1 || true
-      wait "$pid" 2>/dev/null || true
+
+  for idx in "${!SERVICES_PIDS[@]}"; do
+    local pgid="${SERVICES_PGIDS[$idx]:-}"
+    local pid="${SERVICES_PIDS[$idx]:-}"
+    if [[ -n "$pgid" && "$pgid" != "$MAIN_PGID" ]]; then
+      kill -TERM -- "-${pgid}" >/dev/null 2>&1 || true
+    fi
+    if [[ -n "$pid" ]]; then
+      terminate_process_tree "$pid" TERM
     fi
   done
+
+  sleep 1
+
+  for idx in "${!SERVICES_PIDS[@]}"; do
+    local pgid="${SERVICES_PGIDS[$idx]:-}"
+    local pid="${SERVICES_PIDS[$idx]:-}"
+    if [[ -n "$pgid" && "$pgid" != "$MAIN_PGID" ]]; then
+      if ps -o pid= -g "$pgid" 2>/dev/null | grep -q '.'; then
+        kill -KILL -- "-${pgid}" >/dev/null 2>&1 || true
+      fi
+    fi
+    if [[ -n "$pid" ]] && kill -0 "$pid" >/dev/null 2>&1; then
+      terminate_process_tree "$pid" KILL
+    fi
+  done
+
+  SERVICES_PIDS=()
+  SERVICES_PGIDS=()
+  SERVICES_NAMES=()
   console_status "Serviços finalizados. Avisos: ${WARN_COUNT} | Erros: ${ERROR_COUNT}. Log: $LOG_FILE"
 }
 
 trap cleanup EXIT
-trap 'info "Interrupted, stopping..."; exit 130' INT TERM
+trap 'info "Interrupted, stopping..."; cleanup; exit 130' INT TERM
 
 info "Running from ${ROOT_DIR}"
 
@@ -221,15 +285,20 @@ start_service() {
   shift
 
   info "Starting ${name}..."
-  (
-    "$@" \
-      > >(prefix_stream "${name}") \
-      2> >(prefix_stream "${name}")
-  ) &
+  run_with_session "$@" \
+    > >(prefix_stream "${name}") \
+    2> >(prefix_stream "${name}") &
   local pid=$!
+  local pgid
+  pgid=$(ps -o pgid= "$pid" 2>/dev/null | tr -d ' ' || true)
+  pgid=${pgid:-$pid}
+  if [[ "$pgid" == "$MAIN_PGID" ]]; then
+    pgid=$pid
+  fi
   SERVICES_PIDS+=("$pid")
+  SERVICES_PGIDS+=("$pgid")
   SERVICES_NAMES+=("$name")
-  info "${name} running with PID ${pid}"
+  info "${name} running with PID ${pid} (PGID ${pgid})"
   console_status "${name} pronto (PID ${pid})"
 }
 
@@ -261,15 +330,70 @@ info " - Tenant alpha: http://alpha.localhost:${WEB_PORT}/login"
 info " - Tenant beta:  http://beta.localhost:${WEB_PORT}/login"
 info "Mock login: use seeded emails (e.g., owner.alpha@client.com). Password field is ignored in mock mode (AUTH_MODE=mock)."
 
-console_section "STATUS HUB" "$C_OK"
+# Resumo final no terminal (sem caracteres "pesados" para evitar terminal "bagunçado").
+console_msg "======================================== AZA8 HUB - STATUS ========================================" "$C_OK"
 console_status "Servidores iniciados com sucesso."
-console_msg_list_item "API" "http://localhost:${API_PORT}" "$C_OK"
-console_msg_list_item "Web" "http://localhost:${WEB_PORT}" "$C_OK"
-console_msg_list_item "Hub" "http://hub.localhost:${WEB_PORT}/login" "$C_OK"
-console_msg_list_item "Tenants" "alpha.localhost / beta.localhost (127.0.0.1)" "$C_OK"
-console_msg_list_item "Login mock" "owner.alpha@client.com | owner.beta@client.com (senha livre)" "$C_OK"
-console_msg_list_item "Avisos/Erros" "${WARN_COUNT} / ${ERROR_COUNT}" "$C_OK"
-console_msg_list_item "Log" "${LOG_FILE}" "$C_OK"
+
+console_msg "======================================== ENDPOINTS ========================================" "$C_OK"
+printf -v __line '%-13s: %s' "API" "http://localhost:${API_PORT}"
+console_msg "$__line" "$C_OK"
+printf -v __line '%-13s: %s' "Web" "http://localhost:${WEB_PORT}"
+console_msg "$__line" "$C_OK"
+printf -v __line '%-13s: %s' "Hub" "http://hub.localhost:${WEB_PORT}/login"
+console_msg "$__line" "$C_OK"
+printf -v __line '%-13s: %s' "Design System" "http://hub.localhost:${WEB_PORT}/hub/design-system"
+console_msg "$__line" "$C_OK"
+
+console_msg "======================================== TENANTS ========================================" "$C_OK"
+printf -v __line '%-13s: %s' "Tenants" "alpha.localhost / beta.localhost (127.0.0.1)"
+console_msg "$__line" "$C_OK"
+
+console_msg "======================================== LOGIN MOCK =======================================" "$C_OK"
+printf -v __line '%-13s: %s' "Credenciais" "owner.alpha@client.com | owner.beta@client.com (senha livre)"
+console_msg "$__line" "$C_OK"
+
+console_msg "======================================== RESUMO ========================================" "$C_OK"
+printf -v __line '%-13s: %s' "Avisos/Erros" "${WARN_COUNT} / ${ERROR_COUNT}"
+console_msg "$__line" "$C_OK"
+printf -v __line '%-13s: %s' "Log" "${LOG_FILE}"
+console_msg "$__line" "$C_OK"
+
+# Menu interativo (somente quando houver TTY)
+if [[ -t 0 && -r /dev/tty ]]; then
+  console_msg "" "$C_RESET"
+  console_msg "----------------------------------------" "$C_TITLE"
+  console_msg "  AÇÕES" "$C_TITLE"
+  console_msg "----------------------------------------" "$C_TITLE"
+  console_msg "> 1) Encerrar Serviços..." "$C_TITLE"
+  console_msg "" "$C_RESET"
+  printf '%sEscolha [1] (Enter = continuar): %s' "$C_TITLE" "$C_RESET" >"$CONSOLE_DEVICE"
+  if IFS= read -r choice </dev/tty; then
+    case "${choice:-}" in
+      1)
+        console_status "Solicitado: Encerrar Serviços."
+        cleanup
+        SERVICES_PIDS=()
+        SERVICES_PGIDS=()
+        SERVICES_NAMES=()
+        exit 0
+        ;;
+      2)
+        console_status "Solicitado: Reiniciar."
+        cleanup
+        SERVICES_PIDS=()
+        SERVICES_PGIDS=()
+        SERVICES_NAMES=()
+        exec "$0" "$@"
+        ;;
+      "")
+        : # continuar
+        ;;
+      *)
+        console_alert "Opção inválida: ${choice}. Continuando em modo de espera." "$C_WARN"
+        ;;
+    esac
+  fi
+fi
 
 for pid in "${SERVICES_PIDS[@]}"; do
   wait "$pid"

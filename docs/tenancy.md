@@ -3,7 +3,7 @@
 ## Resolução de host
 - `hub.aza8.com.br` (ou `hub.localhost`) → contexto hub `{ tenantId: null, isHubRequest: true }`.
 - `{slug}.aza8.com.br` (ou `{slug}.localhost`) → contexto portal `{ tenantId, tenantSlug, isHubRequest: false }` carregado a partir do banco.
-- Middleware lê `x-forwarded-host` antes de `host` para suportar edge/CDN.
+- Middleware lê `x-forwarded-host` antes de `host` para suportar edge/CDN. **Não há override manual via headers**; o tenant é sempre derivado do host.
 
 ## Fluxo de contexto
 1. `TenancyMiddleware` resolve o host e insere o contexto na `TenantContextStore` (AsyncLocalStorage).
@@ -14,7 +14,7 @@
 ## Enforcements Prisma
 - Modelos escopados: `Membership`, `ToolInstall`, `Invite`, `AuditLog`, `Task`, `FileItem`, `RequestItem`.
 - `PrismaService` middleware injeta `tenantId` em writes e filtra reads automaticamente quando `isHubRequest=false`.
-- `TENANCY_ENFORCEMENT_MODE=strict` gera erro em writes sem `tenantId` ou filtros cruzando tenants; `warn` apenas loga.
+- `TENANCY_ENFORCEMENT_MODE=strict` (padrão) gera erro em writes sem `tenantId` ou filtros cruzando tenants; `warn` apenas loga.
 - Hub requests (isHubRequest=true) não recebem injeção automática, mas guardas de rota ainda checam permissões.
 
 ## Seeds determinísticos

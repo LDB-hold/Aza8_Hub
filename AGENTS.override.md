@@ -67,7 +67,7 @@ Qualquer ação que altere:
 |----|---------|------|--------------|---------|
 | 01 | Revisar propagação de tenantId em todos os services do Hub | backend | Aza8 Architect | ⏳ |
 | 02 | Garantir que `/app/tools/reports` respeita `TOOL_REPORTS_READ` | frontend | Aza8 Architect | ✅ |
-| 03 | Atualizar `docs/platform-overview.md` com rotas novas de Hub | docs | Aza8 Architect | 🔄 |
+| 03 | Atualizar `docs/platform-overview.md` com rotas novas de Hub | docs | Aza8 Architect | ✅ |
 | 04 | Validar cross-tenant no `PrismaService` (modo strict) | backend | Aza8 Architect | ⏳ |
 | 05 | Revisar seeds e roles OWNER/MANAGER | seed | Aza8 Architect | ✅ |
 
@@ -82,3 +82,4 @@ Este override adiciona:
 - **Logging ampliado em `.codex/agent.log`**  
 - **Aprovação manual para execuções destrutivas**  
 - **Controle de UX e menus entre Hub e Portal**
+- **Respostas do agente sempre em português (pt-BR)**

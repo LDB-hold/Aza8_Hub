@@ -140,7 +140,8 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
     applyScopedUniqueWhere(args, tenantContext, model, action) {
         const tenantId = tenantContext.tenantId;
         const scopedArgs = args ? { ...args } : {};
-        const provided = this.extractTenantId(scopedArgs.where);
+        const where = scopedArgs.where ? { ...scopedArgs.where } : {};
+        const provided = this.extractTenantId(where);
         if (provided && provided !== tenantId) {
             const message = `Cross-tenant unique where detected for ${model}.${action}; expected ${tenantId}, received ${provided}`;
             if (this.enforcementMode === 'strict') {
@@ -155,6 +156,10 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
             }
             this.logger.warn(message);
         }
+        scopedArgs.where = {
+            ...where,
+            tenantId
+        };
         return scopedArgs;
     }
     applyTenantIdToData(data, tenantId, model, action) {
@@ -162,7 +167,15 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
             throw new Error(`Cannot apply tenantId: data payload is missing for tenant-scoped write on ${model}.${action}`);
         }
         if (Array.isArray(data)) {
-            return data.map((row) => ({ ...row, tenantId }));
+            return data.map((row) => this.applyTenantIdToData(row, tenantId, model, action));
+        }
+        const provided = this.extractTenantId(data);
+        if (provided && provided !== tenantId) {
+            const message = `Cross-tenant data payload for ${model}.${action}; expected ${tenantId}, received ${provided}`;
+            if (this.enforcementMode === 'strict') {
+                throw new Error(message);
+            }
+            this.logger.warn(message);
         }
         return {
             ...data,

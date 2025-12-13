@@ -7,7 +7,6 @@ import { TenantContextStore } from './tenant-context.store.js';
 type RequestWithContext = IncomingMessage & {
     headers: IncomingHttpHeaders & {
         host?: string;
-        'x-tenant-slug'?: string;
     };
     tenantContext?: TenantContext;
 };
@@ -16,6 +15,7 @@ type NextFunction = (err?: unknown) => void;
 export declare class TenancyMiddleware implements NestMiddleware {
     private readonly tenancyService;
     private readonly tenantContextStore;
+    private readonly logger;
     constructor(tenancyService: TenancyService, tenantContextStore: TenantContextStore);
     use(req: RequestWithContext, _res: Response, next: NextFunction): Promise<void>;
 }

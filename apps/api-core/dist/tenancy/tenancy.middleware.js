@@ -8,31 +8,29 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var TenancyMiddleware_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TenancyMiddleware = void 0;
 const common_1 = require("@nestjs/common");
 const tenancy_service_js_1 = require("./tenancy.service.js");
 const tenant_context_store_js_1 = require("./tenant-context.store.js");
-let TenancyMiddleware = class TenancyMiddleware {
+let TenancyMiddleware = TenancyMiddleware_1 = class TenancyMiddleware {
     constructor(tenancyService, tenantContextStore) {
         this.tenancyService = tenancyService;
         this.tenantContextStore = tenantContextStore;
+        this.logger = new common_1.Logger(TenancyMiddleware_1.name);
     }
     async use(req, _res, next) {
-        // simple trace to ensure middleware runs
-        // eslint-disable-next-line no-console
-        console.debug('[TenancyMiddleware] host', req.headers.host, 'forwarded', req.headers['x-forwarded-host']);
         const forwarded = req.headers['x-forwarded-host'];
         const hostHeader = Array.isArray(forwarded) ? forwarded[0] : forwarded;
         const host = hostHeader || req.headers.host;
-        const tenantSlugHeader = req.headers['x-tenant-slug'];
-        const tenantSlug = Array.isArray(tenantSlugHeader) ? tenantSlugHeader[0] : tenantSlugHeader;
-        req.tenantContext = await this.tenancyService.resolveContext(host, tenantSlug);
+        this.logger.debug(`Resolving tenancy for host=${host}`);
+        req.tenantContext = await this.tenancyService.resolveContext(host);
         return this.tenantContextStore.runWithContext(req.tenantContext, () => next());
     }
 };
 exports.TenancyMiddleware = TenancyMiddleware;
-exports.TenancyMiddleware = TenancyMiddleware = __decorate([
+exports.TenancyMiddleware = TenancyMiddleware = TenancyMiddleware_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [tenancy_service_js_1.TenancyService,
         tenant_context_store_js_1.TenantContextStore])

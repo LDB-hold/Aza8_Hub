@@ -17,12 +17,7 @@ export function parseTenantFromHost(host?: string | null): TenantContext {
 
 export function getTenantContextFromHeaders(h?: Headers): TenantContext {
   const hdrs = h ?? getRuntimeHeaders();
-  const tenantKeyHeader = hdrs?.get('x-tenant-slug') || hdrs?.get('x-tenant-key');
-  const isHubHeader = hdrs?.get('x-is-hub');
-  if (tenantKeyHeader) {
-    return { tenantKey: tenantKeyHeader, isHub: isHubHeader === 'true' || tenantKeyHeader === 'hub' };
-  }
-  const host = hdrs?.get('host') ?? (typeof window !== 'undefined' ? window.location.host : undefined);
+  const host = hdrs?.get('x-forwarded-host') ?? hdrs?.get('host') ?? (typeof window !== 'undefined' ? window.location.host : undefined);
   return parseTenantFromHost(host);
 }
 

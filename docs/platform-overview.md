@@ -9,7 +9,7 @@
 
 ## Componentes
 - **API Core (`apps/api-core`)**: NestJS + Prisma/PostgreSQL; tenancy middleware; Auth/RBAC; endpoints hub (`/hub/*`) e portal (`/portal/*`); seeds determinísticos (tenants alpha/beta, users/roles, ferramentas instaladas).
-- **Web unificado (`apps/web`)**: Next.js App Router servindo `/hub/*` e `/app/*`; resolve tenant pelo host; guarda de rota + menus por permissões/ferramentas instaladas; sessão em cookie.
+- **Web unificado (`apps/web`)**: Next.js App Router servindo `/hub/*` e `/app/*`; resolve tenant pelo host; guarda de rota + menus por permissões/ferramentas instaladas; sessão em cookie. (Frontends legados `apps/hub-web` e `apps/portal-web` foram removidos.)
 - **Packages (`packages/*`)**: `core-domain` (roles/permissions/tool keys), `auth-client`, `config`, `ui`, presets de tsconfig/eslint.
 
 ## Hosts locais e seeds
@@ -24,8 +24,8 @@
 - Ferramentas instaladas: alpha (tasks/files/requests/reports), beta (tasks/reports habilitadas; files/requests desabilitadas).
 
 ## Rotas principais (docs/pages.md detalha)
-- Hub: `/hub/dashboard`, `/hub/tenants`, `/hub/tenants/new`, `/hub/rbac/roles`, `/hub/audit`.
-- Portal: `/app/dashboard`, `/app/tools/{tasks|files|requests|reports}`, `/app/team/{members|invitations}`, `/app/settings/{profile|organization|billing}`, `/app/audit`.
+- Hub (host `hub.localhost`): `GET /hub/tenants/current` (retorna tenant ativo pelo host), `GET /hub/tenants` (listar; perm `HUB_TENANT_READ`), `POST /hub/tenants` (criar; perm `HUB_TENANT_WRITE`), `GET /hub/tenants/:tenantId/tools` (listar tool installs; perm `HUB_TOOLS_MANAGE`), `PUT /hub/tenants/:tenantId/tools/:toolKey` (habilitar/desabilitar tool; perm `HUB_TOOLS_MANAGE`), `GET /hub/audit` (últimos 50 eventos; perm `HUB_AUDIT_READ`).
+- Portal (host `{tenant}.localhost`): `/app/dashboard`, `/app/tools/{tasks|files|requests|reports}`, `/app/team/{members|invitations}`, `/app/settings/{profile|organization|billing}`, `/app/audit`.
 
 ## Execução local (resumo)
 1) `pnpm install && pnpm prisma:generate`

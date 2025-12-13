@@ -7,28 +7,19 @@ import { PrismaService } from '../database/prisma.service.js';
 export class TenancyService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async resolveContext(hostHeader?: string | null, tenantSlugOverride?: string | null): Promise<TenantContext> {
+  async resolveContext(hostHeader?: string | null): Promise<TenantContext> {
     if (!hostHeader) {
       throw new BadRequestException('Host header missing');
     }
 
     const host = hostHeader.split(':')[0];
-    const normalizedOverride = tenantSlugOverride?.trim() || null;
 
-    // Hub host or plain localhost -> hub unless override provided
+    // Hub host or plain localhost -> hub
     if (this.isInternalHost(host) || isHubHost(host)) {
-      if (!normalizedOverride) {
-        return {
-          tenantId: null,
-          tenantSlug: null,
-          isHubRequest: true
-        };
-      }
-      const tenant = await this.findTenantBySlug(normalizedOverride);
       return {
-        tenantId: tenant.id,
-        tenantSlug: tenant.slug,
-        isHubRequest: false
+        tenantId: null,
+        tenantSlug: null,
+        isHubRequest: true
       };
     }
 
