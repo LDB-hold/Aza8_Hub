@@ -40,20 +40,20 @@ export default function LayoutLabPage() {
         ? {
             page: "bg-[#1D1B20]",
             text: "text-slate-100",
-            rail: "bg-[#322F35]",
+            rail: "bg-[#2B2A30]",
             body: "bg-[#1D1B20]",
             surface: "bg-[#2A262E]/80",
             surfaceStroke: "border border-white/5",
-            button: "bg-[#3B383F] text-slate-50",
-            icon: "text-amber-200",
+            button: "bg-[#3A3940] text-slate-100",
+            icon: "text-slate-50",
             searchInput: "text-slate-100 placeholder:text-slate-400",
-            profileButton: "bg-[#3B383F]/90 text-slate-100 ring-1 ring-white/10",
-            profileIcon: "text-slate-100",
-            searchIcon: "text-slate-200",
-            searchChip: "bg-[#2E2930]/90 ring-1 ring-white/10",
-            railActive: "bg-indigo-500 text-white",
-            railInactive: "text-slate-300 hover:bg-white/10",
-            motion: "transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)]",
+            profileButton: "bg-[#3A3940] text-slate-100 ring-1 ring-white/10",
+            profileIcon: "text-slate-50",
+            searchIcon: "text-slate-50",
+            searchChip: "bg-[#333238]/95 ring-1 ring-white/10",
+            railActive: "bg-[#4C4AF2] text-white",
+            railInactive: "text-slate-300 hover:bg-white/15",
+            motion: "transition-colors duration-150 ease-linear",
             railLabel: "text-slate-200"
           }
         : {
@@ -68,11 +68,11 @@ export default function LayoutLabPage() {
             searchInput: "text-slate-900 placeholder:text-slate-500",
             profileButton: "bg-white text-slate-700 ring-1 ring-slate-200/70",
             profileIcon: "text-slate-600",
-            searchIcon: "text-slate-500",
+            searchIcon: "text-slate-600",
             searchChip: "bg-white/90 ring-1 ring-slate-200/60",
             railActive: "bg-indigo-600 text-white",
             railInactive: "text-slate-600 hover:bg-slate-200",
-            motion: "transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)]",
+            motion: "transition-colors duration-150 ease-linear",
             railLabel: "text-slate-500"
           },
     [isDarkMode]
@@ -81,7 +81,7 @@ export default function LayoutLabPage() {
   return (
     <main className={`min-h-screen ${palette.page} ${palette.text}`}>
       <div className="flex min-h-screen">
-        <div className={`sticky top-0 flex h-screen w-24 items-start justify-center ${palette.rail}`}>
+        <div className={`relative sticky top-0 flex h-screen w-24 items-start justify-center ${palette.rail} z-30`}>
           <NavigationRail
             isDarkMode={isDarkMode}
             activeItem={activeItem}
@@ -92,11 +92,22 @@ export default function LayoutLabPage() {
         </div>
 
         <section className={`relative flex-1 overflow-y-auto ${palette.body}`} aria-label="Body Preview">
+          <div className="absolute left-6 top-6 flex items-center gap-3">
+            <button
+              type="button"
+              className={`pointer-events-auto inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold backdrop-blur ${palette.motion} ${palette.profileButton}`}
+            >
+              <span className={`material-symbols-rounded text-base ${palette.profileIcon}`} aria-hidden>
+                arrow_back
+              </span>
+              <span>Voltar</span>
+            </button>
+          </div>
           <div className="absolute right-6 top-6 flex items-center gap-3">
             <div
-              className={`group pointer-events-auto flex items-center overflow-hidden rounded-full shadow-lg backdrop-blur ${palette.motion} ${palette.searchChip} ${
+              className={`group pointer-events-auto flex items-center overflow-hidden rounded-full backdrop-blur ${palette.motion} ${palette.searchChip} ${
                 isSearchExpanded ? "w-80 pl-4 pr-3 py-2" : "h-12 w-12 justify-center"
-              } ${isSearchExpanded ? "scale-100 opacity-100" : "scale-95 opacity-90"}`}
+              } ${isSearchExpanded ? "opacity-100" : "opacity-90"}`}
               onMouseEnter={() => setIsSearchExpanded(true)}
               onMouseLeave={() => setIsSearchExpanded(false)}
               aria-expanded={isSearchExpanded}
@@ -124,6 +135,7 @@ export default function LayoutLabPage() {
             </button>
           </div>
         </section>
+
       </div>
     </main>
   );

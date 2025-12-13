@@ -144,6 +144,12 @@
 {"timestamp": "2025-12-13T08:37:39Z", "task": "fixar navigation rail em 24px e aplicar layout icone+label MD3", "mcp": "codex-cli", "docs": ["apps/web/src/app/(public)/layout-lab/page.tsx"], "designDoc": "https://m3.material.io/components/navigation-rail/specs", "result": "OK"}
 {"timestamp": "2025-12-13T08:38:50Z", "task": "alinhar labels do navigation rail no dark mode", "mcp": "codex-cli", "docs": ["apps/web/src/app/(public)/layout-lab/page.tsx"], "designDoc": "https://m3.material.io/components/navigation-rail/specs", "result": "OK"}
 {"timestamp": "2025-12-13T08:40:11Z", "task": "centralizar botão de dark mode no navigation rail", "mcp": "codex-cli", "docs": ["apps/web/src/app/(public)/layout-lab/page.tsx"], "designDoc": "https://m3.material.io/components/navigation-rail/specs", "result": "OK"}
+{"timestamp": "2025-12-13T08:45:46Z", "task": "ajustar paleta dark do /layout-lab para tons neutros (perfil alinhado)", "mcp": "codex-cli", "docs": ["apps/web/src/app/(public)/layout-lab/page.tsx"], "designDoc": "https://m3.material.io/styles/color/overview", "result": "OK"}
+{"timestamp": "2025-12-13T08:50:16Z", "task": "simular comportamento collapsed/expanded no item Tasks do navigation rail", "mcp": "codex-cli", "docs": ["apps/web/src/app/(public)/layout-lab/page.tsx"], "designDoc": "https://m3.material.io/components/navigation-rail/specs", "result": "OK"}
+{"timestamp": "2025-12-13T08:53:47Z", "task": "ajustar z-index do rail e painel expanded (Tasks)", "mcp": "codex-cli", "docs": ["apps/web/src/app/(public)/layout-lab/page.tsx"], "designDoc": "https://m3.material.io/components/navigation-rail/specs", "result": "OK"}
+{"timestamp": "2025-12-13T08:58:36Z", "task": "refinar expansão vertical do item Tasks ocupando altura total do rail", "mcp": "codex-cli", "docs": ["apps/web/src/app/(public)/layout-lab/page.tsx"], "designDoc": "https://m3.material.io/components/navigation-rail/specs", "result": "OK"}
+{"timestamp": "2025-12-13T09:09:19Z", "task": "recriar painel expanded (Tasks) como coluna contiguous do rail com 3 colunas de ícones", "mcp": "codex-cli", "docs": ["apps/web/src/app/(public)/layout-lab/page.tsx"], "designDoc": "https://m3.material.io/components/navigation-rail/specs", "result": "OK"}
+{"timestamp": "2025-12-13T09:14:43Z", "task": "ajustar painel expanded para deslizar sem gap e remover textos extras", "mcp": "codex-cli", "docs": ["apps/web/src/app/(public)/layout-lab/page.tsx"], "designDoc": "https://m3.material.io/components/navigation-rail/specs", "result": "OK"}
 =======
 >>>>>>> theirs
 =======
@@ -151,3 +157,14 @@
 =======
 >>>>>>> theirs
 {"timestamp":"2025-12-13T07:08:40Z","task":"registrar largura full-viewport MD3 em AGENTS.override.md e docs/design-system.md","mcp":"codex-cli","docs":["AGENTS.override.md","docs/design-system.md"],"designDoc":"https://m3.material.io/foundations/layout/applying-layout/overview","result":"OK"}
+{"timestamp":"2025-12-13T09:18:29Z","task":"ajustar painel tasks para deslizar colado ao rail e remover textos extra","mcp":"codex-cli","docs":["apps/web/src/app/(public)/layout-lab/page.tsx"],"designDoc":"https://m3.material.io/components/navigation-rail/specs","result":"OK"}
+{"timestamp":"2025-12-13T09:18:29Z","task":"remover sombra painel expanded tasks","mcp":"codex-cli","docs":["apps/web/src/app/(public)/layout-lab/page.tsx"],"result":"OK"}
+{"timestamp":"2025-12-13T09:19:43Z","task":"rail a frente e remover padding painel expanded","mcp":"codex-cli","docs":["apps/web/src/app/(public)/layout-lab/page.tsx"],"result":"OK"}
+{"timestamp":"2025-12-13T09:22:33Z","task":"ajustar painel expanded para deslizar por trás do rail e remover padding esquerdo","mcp":"codex-cli","docs":["apps/web/src/app/(public)/layout-lab/page.tsx"],"result":"OK"}
+{"timestamp":"2025-12-13T09:34:10Z","task":"corrigir painel tasks para surgir por trás do rail e alinhar hover","mcp":"codex-cli","docs":["apps/web/src/app/(public)/layout-lab/page.tsx"],"designDoc":"https://m3.material.io/components/navigation-rail/specs","result":"OK"}
+{"timestamp":"2025-12-13T09:35:20Z","task":"remover painel expandido Tasks e hover associado","mcp":"codex-cli","docs":["apps/web/src/app/(public)/layout-lab/page.tsx"],"result":"OK"}
+{"timestamp":"2025-12-13T09:48:29Z","task":"remover scale do chip de busca (igualar tamanho ao perfil)","mcp":"codex-cli","docs":["apps/web/src/app/(public)/layout-lab/page.tsx"],"result":"OK"}
+{"timestamp":"2025-12-13T09:53:55Z","task":"adicionar 5 outlined cards MD3 no body do layout-lab","mcp":"codex-cli","docs":["apps/web/src/app/(public)/layout-lab/page.tsx"],"designDoc":"https://m3.material.io/components/cards/overview","result":"OK"}
+{"timestamp":"2025-12-13T09:55:15Z","task":"remover outlined cards adicionados","mcp":"codex-cli","docs":["apps/web/src/app/(public)/layout-lab/page.tsx"],"result":"OK"}
+{"timestamp":"2025-12-13T21:59:37Z","task":"ler progress.md","mcp":"n/a","docs":["progress.md"],"designDoc":"https://m3.material.io/styles","result":"OK"}
+{"timestamp":"$(date -u +"%Y-%m-%dT%H:%M:%SZ")","task":"consultar progress.md antes de atuar em /layout-lab","mcp":"local","docs":["progress.md"],"result":"OK"}
