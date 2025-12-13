@@ -42,6 +42,7 @@ Durante a execução de tarefas nesta sprint:
     "task": "validate RBAC guard /hub/audit",
     "mcp": "context7",
     "docs": ["docs/rbac.md", "docs/pages.md"],
+    "designDoc": "https://m3.material.io/styles"
     "result": "OK"
   }
   ```
@@ -55,6 +56,16 @@ Durante este ciclo:
 - “Tool not installed” deve ser exibido sempre que `toolKey` não estiver em `ToolInstall`.
 > **Fonte:** `packages/core-domain`, `apps/web/app/_components/navigation.tsx`
 
+### 9. Conformidade Material Design 3
+- Qualquer ajuste de UX, menus ou componentes deve citar explicitamente a página consultada em https://m3.material.io.
+- Divergências entre Hub (`/hub/*`) e Portal (`/app/*`) só são aceitas se o design system permitir variação por contexto.
+- Atualize `docs/design-system.md` com tokens e componentes utilizados para cada mudança.
+
+### 10. Execução guiada por progress.md
+- Antes de iniciar qualquer tarefa, consultar `progress.md` para identificar a próxima etapa a executar.
+- Ao concluir uma etapa listada no `progress.md`, remover essa entrada da lista (não apenas marcar), mantendo o arquivo como fonte da próxima ação.
+- Operar sempre em pt-BR ao registrar ou ajustar o `progress.md`, respeitando as regras desta sprint.
+
 ### 6. Autorização manual obrigatória
 Qualquer ação que altere:
 - Dados persistentes (DB/Prisma),
@@ -62,14 +73,18 @@ Qualquer ação que altere:
 - Seeds determinísticos,  
 **deve requerer aprovação explícita** antes da execução (`approval_policy = manual-destructive`).
 
-### 7. Tasks temporárias da sprint
-| Nº | Tarefa | Tipo | Responsável | Status |
-|----|---------|------|--------------|---------|
-| 01 | Revisar propagação de tenantId em todos os services do Hub | backend | Aza8 Architect | ⏳ |
-| 02 | Garantir que `/app/tools/reports` respeita `TOOL_REPORTS_READ` | frontend | Aza8 Architect | ✅ |
-| 03 | Atualizar `docs/platform-overview.md` com rotas novas de Hub | docs | Aza8 Architect | ✅ |
-| 04 | Validar cross-tenant no `PrismaService` (modo strict) | backend | Aza8 Architect | ⏳ |
-| 05 | Revisar seeds e roles OWNER/MANAGER | seed | Aza8 Architect | ✅ |
+### 7. Diretriz Material Design 3 – Hub “como o site do Material Design 3”
+- Adotar arquitetura **Navigation – Body – App Bar** em todas as páginas (Hub/Portal), usando componentes M3 para Top App Bar + Navigation Drawer/Rail + conteúdo principal.
+- Aplicar **theme dinâmico por tenant** (palette/tonal + dark/light) respeitando tokens MD3; quedas para default só com justificativa em `docs/design-system.md`.
+- Manter **grid M3 consistente** (espacamentos, breakpoints e touch targets) nas templates; evitar variações ad-hoc entre Hub e Portal.
+- Toda a plataforma deve respeitar **100% da largura disponível da viewport**, alinhando-se ao [Responsive layout grid – MD3](https://m3.material.io/foundations/layout/applying-layout/overview) que orienta superfícies fluidas.
+- Navegação deve refletir o design system com estados hover/focus/pressed; App Bar sempre com breadcrumbs/ações principais e título coerente.
+- Sincronizar alterações de layout/tema/navegação em `docs/design-system.md` e `progress.md`; citar página consultada em https://m3.material.io em cada ajuste.
+
+### 11. Reset de design M3
+- Desconsiderar qualquer layout/estilo legado e reconstruir as telas do Hub e do Portal do **zero** seguindo exclusivamente o Material Design 3.
+- Tomar como base primária https://m3.material.io/styles (e seções específicas consultadas), registrando referências usadas em `docs/design-system.md` e `progress.md`.
+- Reaplicar arquitetura Navigation – Body – App Bar, tokens e componentes MD3 (App Bar, Drawer/Rail, Navigation Tabs, states) antes de qualquer herança de UI pré-existente.
 
 ### 8. Encerramento da sprint
 - Após 20/12/2025, este arquivo deve ser removido ou renomeado para `AGENTS.override.archive.md`.
@@ -82,4 +97,5 @@ Este override adiciona:
 - **Logging ampliado em `.codex/agent.log`**  
 - **Aprovação manual para execuções destrutivas**  
 - **Controle de UX e menus entre Hub e Portal**
+- **Execução guiada pelo `progress.md` (consultar e remover etapas concluídas)**
 - **Respostas do agente sempre em português (pt-BR)**

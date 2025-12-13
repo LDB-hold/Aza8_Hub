@@ -1,0 +1,13 @@
+
+> @aza8/web@0.1.0 lint /Users/jhonatanlopes/Desktop/Aza8_Hub/apps/web
+> next lint
+
+Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property 'configs' -> object with constructor 'Object'
+    |     property 'flat' -> object with constructor 'Object'
+    |     ...
+    |     property 'plugins' -> object with constructor 'Object'
+    --- property 'react' closes the circle
+Referenced from: /Users/jhonatanlopes/Desktop/Aza8_Hub/.eslintrc.js
+[41m[30m ELIFECYCLE [39m[49m [31mCommand failed with exit code 1.[39m

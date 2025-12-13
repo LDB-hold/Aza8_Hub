@@ -8,12 +8,14 @@ Todas as páginas exibem título, descrição curta e seguem guardas de sessão/
 
 ## Público
 - `/` – redireciona para `/dashboard`.
-- `/login` – login rápido (mock) por e-mail seed; cria cookie httpOnly e oferece botão de idioma (ENG/ES/BR) no topo que alterna ciclicamente para futura localização.
+- `/login` – login rápido (mock) por e-mail seed; cria cookie httpOnly e oferece par de botões flutuantes no canto inferior direito: dark mode (troca ícone lua/sol) e seletor de idioma ENG/ES/BR. UI segue Material Design 3 com um único card centralizado (text fields filled + helper sobre seeds).
 - `/logout` – limpa sessão.
 - `/403`, `/404`, `/500` – páginas de erro.
+- `/design-system` – página pública de referência MD3 com tokens iniciais, tipografia aplicada e diretrizes de navegação Hub/Portal.
+- `/layout-lab` – laboratório público enxuto para validar Navigation–Body–App Bar com navigation rail (estados/fallback “Tool not installed”), preenchendo a viewport; conteúdo é placeholder.
 
 ## Portal (host `{tenant}.localhost`)
-- `/dashboard` (perm: `PORTAL_DASHBOARD_VIEW`) – cards de ferramentas instaladas.
+- `/dashboard` (perm: `PORTAL_DASHBOARD_VIEW`) – visão MD3 com menu lateral SAP (navigation rail), métricas e cards de ferramentas instaladas/estado.
 - `/tools/tasks` (perms: `TOOL_TASKS_READ`; escrever exige `TOOL_TASKS_WRITE`)
 - `/tools/files` (perms: `TOOL_FILES_READ`; upload exige `TOOL_FILES_WRITE`)
 - `/tools/requests` (perms: `TOOL_REQUESTS_READ`; criar exige `TOOL_REQUESTS_CREATE`; aprovar/rejeitar exige `TOOL_REQUESTS_APPROVE`)

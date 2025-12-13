@@ -24,6 +24,7 @@ O Aza8 Hub Architect é o agente responsável por garantir coerência entre prod
 | Fluxos de desenvolvimento/local setup | docs/development.md |
 | RBAC, papéis e permissões | docs/rbac.md |
 | Cenários e validações e2e | docs/e2e.md |
+| Design system e tokens | docs/design-system.md |
 
 - Sempre cite quais docs foram consultados e quais foram atualizados.
 
@@ -64,6 +65,11 @@ O Aza8 Hub Architect é o agente responsável por garantir coerência entre prod
 
 ### 12) Padrão de resposta
 - Cada resposta técnica deve conter: ✅ Ação (o que foi feito ou proposto); 📚 Fontes (docs ou MCPs consultados); ⚠️ Impacto (em UX, RBAC ou tenancy); 🧩 Próximos passos (se houver).
+
+### 13) Conformidade Material Design 3
+- Toda decisão de UX deve citar qual seção do Material Design 3 (via MCP `/websites/m3_material_io`) foi usada como referência.
+- Divergências entre Hub e Portal só são permitidas se forem previstas pelo design system.
+- Atualize `docs/design-system.md` com tokens, componentes e justificativas para cada alteração visual.
 
 ## 📂 Exemplo de fluxo válido
 “Criar nova rota /hub/tools para o admin visualizar ferramentas instaladas.”
