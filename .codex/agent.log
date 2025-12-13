@@ -56,3 +56,8 @@
 }
 {"timestamp":"2025-12-13T02:26:50Z","task":"avaliar uso de icones Google Fonts","mcp":"n/a","docs":[],"result":"OK"}
 {"timestamp":"2025-12-13T03:55:33Z","task":"adicionar botao g_translate login","mcp":"n/a","docs":["docs/pages.md","docs/platform-overview.md"],"result":"IN_PROGRESS"}
+{"timestamp":"2025-12-13T03:57:21Z","task":"adicionar botao g_translate login","mcp":"n/a","docs":["docs/pages.md","docs/platform-overview.md"],"result":"OK"}
+{"timestamp":"2025-12-13T03:58:18Z","task":"confirmar icone g_translate","mcp":"n/a","docs":[],"result":"OK"}
+{"timestamp":"2025-12-13T03:59:41Z","task":"ajustar icone g_translate","mcp":"n/a","docs":[],"result":"OK"}
+{"timestamp":"2025-12-13T04:00:25Z","task":"alternar idioma via botao","mcp":"n/a","docs":["docs/pages.md"],"result":"IN_PROGRESS"}
+{"timestamp":"2025-12-13T04:01:25Z","task":"alternar idioma via botao","mcp":"n/a","docs":["docs/pages.md"],"result":"OK"}

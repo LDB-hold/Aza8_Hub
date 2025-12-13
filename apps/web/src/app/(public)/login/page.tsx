@@ -13,6 +13,10 @@ type FormState = {
   error?: string;
 };
 
+type LanguageCode = 'ENG' | 'ES' | 'BR';
+
+const LANGUAGE_OPTIONS: LanguageCode[] = ['ENG', 'ES', 'BR'];
+
 export default function LoginPage() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-slate-50" />}>
@@ -29,6 +33,7 @@ function LoginContent() {
 
   const [form, setForm] = useState<FormState>({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
+  const [language, setLanguage] = useState<LanguageCode>('BR');
 
   const performLogin = async (email: string) => {
     const res = await fetch(MOCK_LOGIN_ENDPOINT, {
@@ -61,8 +66,29 @@ function LoginContent() {
     }
   };
 
+  const cycleLanguage = () => {
+    setLanguage((current) => {
+      const currentIndex = LANGUAGE_OPTIONS.indexOf(current);
+      const nextIndex = (currentIndex + 1) % LANGUAGE_OPTIONS.length;
+      return LANGUAGE_OPTIONS[nextIndex];
+    });
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top,_#e0f2fe,_transparent_45%),#f8fafc] px-4 py-10">
+    <div className="relative min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top,_#e0f2fe,_transparent_45%),#f8fafc] px-4 py-10">
+      <div className="absolute top-4 right-4 text-right">
+        <button
+          type="button"
+          aria-label="Selecionar idioma"
+          onClick={cycleLanguage}
+          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-300"
+        >
+          <span className="material-symbols-rounded text-base leading-none" aria-hidden="true">
+            g_translate
+          </span>
+          {language}
+        </button>
+      </div>
       <div className="w-full max-w-md space-y-6">
         <header className="text-center space-y-2">
           <div className="flex justify-center pb-[50px]">

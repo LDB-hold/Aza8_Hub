@@ -8,7 +8,7 @@ Todas as páginas exibem título, descrição curta e seguem guardas de sessão/
 
 ## Público
 - `/` – redireciona para `/dashboard`.
-- `/login` – login rápido (mock) por e-mail seed; cria cookie httpOnly.
+- `/login` – login rápido (mock) por e-mail seed; cria cookie httpOnly e oferece botão de idioma (ENG/ES/BR) no topo que alterna ciclicamente para futura localização.
 - `/logout` – limpa sessão.
 - `/403`, `/404`, `/500` – páginas de erro.
 
