@@ -3,7 +3,6 @@
 - Objetivo: alinhar todas as páginas (Hub `/hub/*` e Portal `/app/*`) ao Material Design 3 com navegação coerente e isolamento de tenant.
 
 ## Tarefas prioritárias (ordem de execução)
-- [ ] Criar página de teste layout(pública) para definir o Navigation–Body–AppBar para entender a estrura.
 - [ ] refazer a página de Design System (pública) exibindo tokens MD3 e referências.
 - [ ] Consolidar tokens de tema (cores, tipografia, shape, elevation, states) no código e em `docs/design-system.md`.
 - [ ] Padronizar componentes base MD3 (Botões, FAB, TextField, Select, Card, Dialog, Snackbar, Tabs, Chips).

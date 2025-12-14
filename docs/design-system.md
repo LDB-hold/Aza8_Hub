@@ -22,3 +22,9 @@
 - Navigation rail lateral usa tokens de [Navigation Rail – Material Design 3](https://m3.material.io/components/navigation-rail/overview) com `rounded-[32px]`, ícones `material-symbols-rounded` e indicadores filled para o item ativo.
 - Cards de métricas e ferramentas seguem [Cards – Material Design 3](https://m3.material.io/components/cards/overview) com estados tonal (surface containers) e chips de status.
 - Activity feed e sessão ativa usam divisões `divide-y` e tipografia `label`/`body` conforme tabela tipográfica MD3 para garantir hierarquia visual clara.
+
+## Página pública `/layout-lab` (teste Navigation–Body–App Bar)
+- Estrutura espelha arquitetura Navigation–Body–App Bar com `Navigation Rail` + `Top App Bar (medium)` sticky, referência direta a [Navigation Rail – MD3](https://m3.material.io/components/navigation-rail/overview) e [Top App Bar – MD3](https://m3.material.io/components/top-app-bar/overview).
+- Tokens aplicados (light/dark): background `#FFFBFE` / `#1C1B1F`, surface container `#F3EDF7` / `#141218`, active rail `#6750A4` (light) e `#D0BCFF` (dark), strokes `#E6E0E9` / `#49454F`, texto de apoio `#49454F` / `#CAC4D0`.
+- Busca acessível: chip com toggle via click/teclado, `aria-expanded`, foco visível (`outline` tonal) e input `type="search"` com placeholder MD3.
+- App Bar exibe breadcrumbs curtos, título (headline), ações de perfil e mantém sombra suave para diferenciar do body mantendo 100% da viewport conforme [Responsive layout grid – MD3](https://m3.material.io/foundations/layout/applying-layout/overview).
