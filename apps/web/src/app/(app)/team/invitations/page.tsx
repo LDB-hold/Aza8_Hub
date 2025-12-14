@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { PagePanel } from '@components/PagePanel';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@components/ui/card';
 import { apiFetch } from '@lib/api';
 
@@ -28,10 +29,7 @@ export default function InvitationsPage() {
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({ email: '', roleKey: 'MEMBER' });
 
-  const activeInvites = useMemo(
-    () => invites.filter((i) => !i.acceptedAt),
-    [invites]
-  );
+  const activeInvites = useMemo(() => invites.filter((i) => !i.acceptedAt), [invites]);
 
   const fetchInvites = async () => {
     setLoading(true);
@@ -70,130 +68,106 @@ export default function InvitationsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold text-slate-900">Convites</h1>
-        <p className="text-sm text-slate-600">Convide usuários para o tenant e acompanhe aceites.</p>
-      </div>
+    <div className="space-y-6" data-testid="team-invitations-page">
+      <PagePanel
+        title="Team — Invitations"
+        description="Convide usuários e acompanhe tokens com o layout Navigation–Body–App Bar."
+        icon="person_add"
+        helper="Equipe · RBAC"
+        testId="team-invitations-panel"
+      >
+        <p className="text-xs text-[#49454F]">Permissão necessária: TENANT_MEMBER_INVITE.</p>
+      </PagePanel>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Novo convite</CardTitle>
-          <CardDescription>Defina e-mail e papel. O token fica disponível para compartilhamento.</CardDescription>
+      <Card
+        className="border-[#E6E0E9] bg-white/90 shadow-[0_16px_44px_-34px_rgba(28,27,31,0.3)]"
+        data-testid="invite-form-card"
+      >
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg text-[#1C1B1F]">Novo convite</CardTitle>
+          <CardDescription className="text-sm text-[#49454F]">
+            Defina e-mail e papel. O token fica disponível para compartilhamento.
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={onSubmit} className="grid gap-4 md:grid-cols-[2fr_1fr_auto] items-end">
-            <div className="space-y-1">
-              <label className="text-sm text-slate-700" htmlFor="email">E-mail</label>
+        <CardContent className="pt-0">
+          <form onSubmit={onSubmit} className="grid items-end gap-4 md:grid-cols-[2fr_1fr_auto]">
+            <div className="space-y-2">
+              <label className="text-sm text-[#1C1B1F]" htmlFor="email">
+                E-mail
+              </label>
               <input
                 id="email"
                 type="email"
                 required
                 value={form.email}
                 onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none"
+                className="w-full rounded-2xl border border-[#E6E0E9] bg-white/80 px-3 py-2.5 text-sm text-[#1C1B1F] outline-none focus-visible:border-[#6750A4] focus-visible:ring-2 focus-visible:ring-[#EADDFF]"
                 placeholder="pessoa@empresa.com"
+                data-testid="invite-email-input"
               />
             </div>
-            <div className="space-y-1">
-              <label className="text-sm text-slate-700" htmlFor="role">Papel</label>
+            <div className="space-y-2">
+              <label className="text-sm text-[#1C1B1F]" htmlFor="role">
+                Papel
+              </label>
               <select
                 id="role"
                 value={form.roleKey}
                 onChange={(e) => setForm((f) => ({ ...f, roleKey: e.target.value }))}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none"
+                className="w-full rounded-2xl border border-[#E6E0E9] bg-white/80 px-3 py-2.5 text-sm text-[#1C1B1F] outline-none focus-visible:border-[#6750A4] focus-visible:ring-2 focus-visible:ring-[#EADDFF]"
+                data-testid="invite-role-select"
               >
                 {ROLE_OPTIONS.map((role) => (
-                  <option key={role.key} value={role.key}>{role.label}</option>
+                  <option key={role.key} value={role.key}>
+                    {role.label}
+                  </option>
                 ))}
               </select>
             </div>
             <button
               type="submit"
               disabled={submitting}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
+              className="rounded-full bg-[#6750A4] px-5 py-2 text-sm font-semibold text-white shadow-[0_10px_30px_-18px_rgba(103,80,164,0.8)] transition hover:bg-[#7F67BE] disabled:opacity-60"
+              data-testid="invite-submit"
             >
               {submitting ? 'Enviando...' : 'Criar convite'}
             </button>
           </form>
-          {error && <div className="mt-3 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</div>}
+          {error ? (
+            <div className="mt-3 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</div>
+          ) : null}
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Convites pendentes</CardTitle>
-          <CardDescription>Tokens válidos ainda não aceitos.</CardDescription>
+      <Card
+        className="border-[#E6E0E9] bg-white/90 shadow-[0_16px_44px_-34px_rgba(28,27,31,0.3)]"
+        data-testid="invite-list-card"
+      >
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg text-[#1C1B1F]">Convites ativos</CardTitle>
+          <CardDescription className="text-sm text-[#49454F]">Tokens aguardando aceite.</CardDescription>
         </CardHeader>
-        <CardContent>
-          {loading && <p className="text-sm text-slate-600">Carregando convites...</p>}
-          {!loading && activeInvites.length === 0 && <p className="text-sm text-slate-600">Nenhum convite pendente.</p>}
-          {!loading && activeInvites.length > 0 && (
-            <div className="overflow-hidden rounded-lg border border-slate-200">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                  <tr>
-                    <th className="px-4 py-3">E-mail</th>
-                    <th className="px-4 py-3">Papel</th>
-                    <th className="px-4 py-3">Token</th>
-                    <th className="px-4 py-3">Expira em</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {activeInvites.map((invite) => (
-                    <tr key={invite.id} className="border-t">
-                      <td className="px-4 py-3">{invite.email}</td>
-                      <td className="px-4 py-3">{invite.roleKey}</td>
-                      <td className="px-4 py-3 font-mono text-xs">{invite.token}</td>
-                      <td className="px-4 py-3 text-slate-600">{new Date(invite.expiresAt).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Histórico</CardTitle>
-          <CardDescription>Convites criados e aceitos.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loading && <p className="text-sm text-slate-600">Carregando histórico...</p>}
-          {!loading && invites.length === 0 && <p className="text-sm text-slate-600">Nenhum convite registrado.</p>}
-          {!loading && invites.length > 0 && (
-            <div className="overflow-hidden rounded-lg border border-slate-200">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                  <tr>
-                    <th className="px-4 py-3">E-mail</th>
-                    <th className="px-4 py-3">Papel</th>
-                    <th className="px-4 py-3">Criado em</th>
-                    <th className="px-4 py-3">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {invites.map((invite) => (
-                    <tr key={invite.id} className="border-t">
-                      <td className="px-4 py-3">{invite.email}</td>
-                      <td className="px-4 py-3">{invite.roleKey}</td>
-                      <td className="px-4 py-3 text-slate-600">{new Date(invite.createdAt).toLocaleString()}</td>
-                      <td className="px-4 py-3">
-                        {invite.acceptedAt ? (
-                          <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">
-                            Aceito em {new Date(invite.acceptedAt).toLocaleDateString()}
-                          </span>
-                        ) : (
-                          <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700">Pendente</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        <CardContent className="pt-0">
+          {loading ? (
+            <p className="text-sm text-[#49454F]">Carregando...</p>
+          ) : activeInvites.length === 0 ? (
+            <p className="text-sm text-[#49454F]">Nenhum convite pendente.</p>
+          ) : (
+            <ul className="divide-y divide-[#E6E0E9]">
+              {activeInvites.map((invite) => (
+                <li key={invite.id} className="flex items-center justify-between py-3">
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-[#1C1B1F]">{invite.email}</p>
+                    <p className="text-xs text-[#49454F]">
+                      Papel: {invite.roleKey} · Expira em {new Date(invite.expiresAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <code className="rounded-full border border-dashed border-[#E6E0E9] bg-white/70 px-3 py-1 text-xs text-[#1C1B1F]">
+                    {invite.token}
+                  </code>
+                </li>
+              ))}
+            </ul>
           )}
         </CardContent>
       </Card>

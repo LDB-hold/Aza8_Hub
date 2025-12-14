@@ -9,7 +9,7 @@
 
 ## Componentes
 - **API Core (`apps/api-core`)**: NestJS + Prisma/PostgreSQL; tenancy middleware; Auth/RBAC; endpoints hub (`/hub/*`) e portal (`/portal/*`); seeds determinísticos (tenants alpha/beta, users/roles, ferramentas instaladas).
-- **Web unificado (`apps/web`)**: Next.js App Router servindo `/hub/*` e `/app/*`; resolve tenant pelo host; guarda de rota + menus por permissões/ferramentas instaladas; sessão em cookie; página pública `/design-system` para referência de tokens/componentes MD3. (Frontends legados `apps/hub-web` e `apps/portal-web` foram removidos.)
+- **Web unificado (`apps/web`)**: Next.js App Router servindo `/hub/*` e `/app/*`; resolve tenant pelo host; guarda de rota + menus por permissões/ferramentas instaladas; sessão em cookie; Navigation Rail + Top App Bar (MD3) compartilhados em todas as páginas autenticadas; página pública `/design-system` para referência de tokens/componentes MD3. (Frontends legados `apps/hub-web` e `apps/portal-web` foram removidos.)
 - **Packages (`packages/*`)**: `core-domain` (roles/permissions/tool keys), `auth-client`, `config`, `ui`, presets de tsconfig/eslint.
 
 ## Hosts locais e seeds

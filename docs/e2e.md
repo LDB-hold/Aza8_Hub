@@ -20,7 +20,7 @@
 ## Infra de testes
 - `apps/web/playwright.config.ts`: baseURL troca conforme host (`hub.localhost`, `alpha.localhost`, `beta.localhost`).
 - Fixtures: helper `quickLogin(email)` que chama `POST /auth/login` e preserva cookie de sessão.
-- Selectors: use `data-testid` em navegação, formulários e tabelas para estabilidade.
+- Selectors: Navigation Rail usa `data-testid` `nav-*` (dashboard, tasks, files, requests, reports, settings-* etc), guardas expõem `route-guard-forbidden` e `route-guard-tool-missing`, e cada página raiz tem `*-page` para assert de carregamento estável.
 
 ## Como rodar
 ```bash

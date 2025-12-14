@@ -1,8 +1,20 @@
+import { PagePanel } from '@components/PagePanel';
+
 export default function RequestsPage() {
   return (
-    <div className="space-y-2">
-      <h1 className="text-2xl font-semibold text-slate-900">Requests</h1>
-      <p className="text-sm text-slate-600">Solicitações estruturadas com aprovações.</p>
+    <div className="space-y-4" data-testid="requests-page">
+      <PagePanel
+        title="Requests"
+        description="Solicitações estruturadas com aprovações seguindo o layout Navigation–Body–App Bar."
+        icon="assignment"
+        helper="Ferramentas · RBAC"
+        testId="requests-panel"
+      >
+        <p className="text-xs text-[#49454F]">
+          Permissões: TOOL_REQUESTS_READ (listar), TOOL_REQUESTS_CREATE (criar) e TOOL_REQUESTS_APPROVE (aprovar/rejeitar). toolKey:
+          requests.
+        </p>
+      </PagePanel>
     </div>
   );
 }

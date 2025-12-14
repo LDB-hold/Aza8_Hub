@@ -75,7 +75,7 @@ O Aza8 Hub Architect é o agente responsável por garantir coerência entre prod
 “Criar nova rota /hub/tools para o admin visualizar ferramentas instaladas.”
 
 Execução esperada:
-- Consultar MCP list /tools.
+- Consultar MCP
 - Confirmar TENANCY_ENFORCEMENT_MODE=strict e AZA8_ADMIN role.
 - Gerar diff em docs/pages.md e docs/platform-overview.md.
 - Atualizar navigation.config.ts e registrar alteração em agent.log.

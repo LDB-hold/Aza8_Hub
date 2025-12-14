@@ -3,6 +3,7 @@
 - Hub (`/hub/*`) e Portal (`/app/*`) seguem o mesmo tema; variações só quando o design system permitir diferença por contexto.
 - Toda a plataforma deve respeitar 100% da largura disponível da viewport, espelhando o comportamento fluido recomendado em [Responsive layout grid – MD3](https://m3.material.io/foundations/layout/applying-layout/overview).
 - Ícones sempre em `material-symbols-rounded` com estados hover/focus/pressed visíveis.
+- Navigation–Body–App Bar aplicado globalmente: Navigation Rail tonal + Top App Bar (medium) sticky com busca/ação de perfil, seguindo [Navigation Rail](https://m3.material.io/components/navigation-rail/overview) e [Top App Bar](https://m3.material.io/components/top-app-bar/overview).
 
 ## Página pública `/design-system`
 - Exibe tokens iniciais (cores primária/secundária, surface container tonal, neutral-variant e error) com hex e papel semântico.

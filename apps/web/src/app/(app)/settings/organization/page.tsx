@@ -1,8 +1,17 @@
+import { PagePanel } from '@components/PagePanel';
+
 export default function OrganizationSettingsPage() {
   return (
-    <div className="space-y-2">
-      <h1 className="text-2xl font-semibold text-slate-900">Settings – Organization</h1>
-      <p className="text-sm text-slate-600">Informações do cliente e contexto operacional.</p>
+    <div className="space-y-4" data-testid="settings-organization-page">
+      <PagePanel
+        title="Settings — Organization"
+        description="Informações do cliente e contexto operacional com Navigation–Body–App Bar."
+        icon="business"
+        helper="Configurações · RBAC"
+        testId="settings-organization-panel"
+      >
+        <p className="text-xs text-[#49454F]">Permissão: TENANT_SETTINGS_READ.</p>
+      </PagePanel>
     </div>
   );
 }

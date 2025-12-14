@@ -1,6 +1,6 @@
 # Páginas e permissões (estado atual – apps/web)
 
-Todas as páginas exibem título, descrição curta e seguem guardas de sessão/permiso. A navegação e os guards usam `requiredPermissions` e, quando aplicável, verificam ferramenta instalada.
+Todas as páginas autenticadas agora seguem o layout Navigation–Body–App Bar (Material Design 3) com Navigation Rail tonal + Top App Bar sticky. A navegação filtra itens por `requiredPermissions`, `toolKey` instalado e host (hub vs portal); o guard exibe “Tool not installed” ou 403 (host/permissão) quando necessário.
 
 ## Hosts
 - Hub: `hub.localhost` (ou `hub.aza8.com.br` em produção)
@@ -26,6 +26,12 @@ Todas as páginas exibem título, descrição curta e seguem guardas de sessão/
 - `/settings/organization` (perm: `TENANT_SETTINGS_READ`; edição exige `TENANT_SETTINGS_WRITE`)
 - `/settings/billing` (perms: `TENANT_BILLING_READ`/`TENANT_BILLING_WRITE`; OWNER obrigatório)
 - `/audit` (perm: `AUDIT_READ`)
+- Navigation rail e app bar aplicados a todas as rotas; nav item só aparece se `requiredPermissions` estiver presente e a ferramenta estiver instalada (alpha: tasks/files/requests/reports; beta: tasks/reports).
 
-## Hub (a implementar na camada web unificada)
-- Rotas previstas: `/hub/dashboard`, `/hub/tenants`, `/hub/tenants/new`, `/hub/rbac/*`, `/hub/audit` (permissões de hub conforme `docs/rbac.md`).
+## Hub (host `hub.localhost`)
+- `/hub/dashboard` (perm: `HUB_DASHBOARD_VIEW`)
+- `/hub/tenants` (perm: `HUB_TENANT_READ`)
+- `/hub/tenants/new` (perm: `HUB_TENANT_WRITE`)
+- `/hub/rbac` (perm: `HUB_RBAC_VIEW`)
+- `/hub/audit` (perm: `HUB_AUDIT_READ`)
+- Navigation rail inclui apenas itens de hub; rotas de portal são bloqueadas por host guard.
