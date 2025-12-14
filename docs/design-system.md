@@ -29,3 +29,8 @@
 - Tokens aplicados (light/dark): background `#FFFBFE` / `#1C1B1F`, surface container `#F3EDF7` / `#141218`, active rail `#6750A4` (light) e `#D0BCFF` (dark), strokes `#E6E0E9` / `#49454F`, texto de apoio `#49454F` / `#CAC4D0`.
 - Busca acessível: chip com toggle via click/teclado, `aria-expanded`, foco visível (`outline` tonal) e input `type="search"` com placeholder MD3.
 - App Bar exibe breadcrumbs curtos, título (headline), ações de perfil e mantém sombra suave para diferenciar do body mantendo 100% da viewport conforme [Responsive layout grid – MD3](https://m3.material.io/foundations/layout/applying-layout/overview).
+
+## Atualização v0.1.0 – 2025-12-14
+- Autor: Codex (AI)
+- Escopo: Top App Bar autenticado – botão de perfil copiado do `/layout-lab` abrindo menu vertical.
+- Impacto: Menu de perfil segue [Menus + Divider – MD3](/websites/m3_material_io) com surface tonal, foco visível, nome/e-mail e ação de logout; comportamento restrito ao usuário logado, sem impacto em RBAC ou tenancy.

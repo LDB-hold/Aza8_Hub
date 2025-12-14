@@ -3,12 +3,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { TenantBadge } from './TenantBadge';
 import { LogoutButton } from './LogoutButton';
 import type { Session } from '../lib/auth';
 import type { TenantContext } from '../lib/tenant';
-import { Avatar } from './ui/avatar';
 import {
   buildNavigation,
   ALL_NAV_ITEMS,
@@ -39,13 +38,17 @@ type Palette = {
   focus: string;
   motion: string;
   body: string;
+  profileButton: string;
+  profileIcon: string;
 };
 
 export function AppShell({ children, session, tenant }: { children: ReactNode; session: Session; tenant: TenantContext }) {
   const pathname = usePathname();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const palette = useMemo<Palette>(
     () =>
@@ -68,7 +71,9 @@ export function AppShell({ children, session, tenant }: { children: ReactNode; s
             railLabel: 'text-[#CAC4D0]',
             mutedText: 'text-[#CAC4D0]',
             focus: 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D0BCFF]',
-            motion: 'transition-all duration-200 ease-out'
+            motion: 'transition-all duration-200 ease-out',
+            profileButton: 'bg-[#2B2832] text-[#E6E1E5] ring-1 ring-[#49454F] hover:bg-[#332F3A]',
+            profileIcon: 'text-[#E6E1E5]'
           }
         : {
             page: 'bg-[#FFFBFE]',
@@ -88,7 +93,9 @@ export function AppShell({ children, session, tenant }: { children: ReactNode; s
             railLabel: 'text-[#49454F]',
             mutedText: 'text-[#49454F]',
             focus: 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6750A4]',
-            motion: 'transition-all duration-200 ease-out'
+            motion: 'transition-all duration-200 ease-out',
+            profileButton: 'bg-white text-[#1D1B20] ring-1 ring-[#E6E0E9] hover:bg-[#F4EFF4]',
+            profileIcon: 'text-[#1D1B20]'
           },
     [isDarkMode]
   );
@@ -109,6 +116,30 @@ export function AppShell({ children, session, tenant }: { children: ReactNode; s
       searchInputRef.current?.focus();
     }
   }, [isSearchExpanded]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
+
+  useEffect(() => {
+    setIsProfileMenuOpen(false);
+  }, [pathname]);
 
   return (
     <div className={`flex min-h-screen ${palette.page} ${palette.text}`} data-testid="app-shell">
@@ -175,12 +206,14 @@ export function AppShell({ children, session, tenant }: { children: ReactNode; s
                 palette={palette}
                 searchInputRef={searchInputRef}
               />
-              <div className="hidden sm:flex flex-col items-end text-xs leading-tight">
-                <span className="font-semibold">{session.user.name}</span>
-                <span className={palette.mutedText}>{session.user.email}</span>
-              </div>
-              <Avatar name={session.user.name} className="shadow-sm" />
-              <LogoutButton className="hidden sm:inline-flex" />
+              <ProfileMenu
+                session={session}
+                palette={palette}
+                isDarkMode={isDarkMode}
+                isOpen={isProfileMenuOpen}
+                onToggle={() => setIsProfileMenuOpen((prev) => !prev)}
+                menuRef={profileMenuRef}
+              />
             </div>
           </div>
         </header>
@@ -243,6 +276,91 @@ export function AppShell({ children, session, tenant }: { children: ReactNode; s
           </div>
         </main>
       </div>
+    </div>
+  );
+}
+
+function ProfileMenu({
+  session,
+  palette,
+  isDarkMode,
+  isOpen,
+  onToggle,
+  menuRef
+}: {
+  session: Session;
+  palette: Palette;
+  isDarkMode: boolean;
+  isOpen: boolean;
+  onToggle: () => void;
+  menuRef: RefObject<HTMLDivElement>;
+}) {
+  const initials = session.user.name?.slice(0, 1).toUpperCase() ?? 'A';
+  return (
+    <div className="relative" ref={menuRef}>
+      <button
+        type="button"
+        className={cn(
+          'inline-flex h-12 w-12 items-center justify-center rounded-full',
+          palette.profileButton,
+          palette.focus,
+          palette.motion
+        )}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        onClick={onToggle}
+        data-testid="profile-menu-trigger"
+      >
+        <span className={`material-symbols-rounded text-xl ${palette.profileIcon}`} aria-hidden>
+          account_circle
+        </span>
+        <span className="sr-only">Abrir menu de perfil</span>
+      </button>
+
+      {isOpen ? (
+        <div
+          className={cn(
+            'absolute right-0 mt-3 w-72 rounded-3xl border shadow-[0_20px_44px_-24px_rgba(28,27,31,0.45)]',
+            palette.surface,
+            palette.surfaceStroke,
+            palette.text
+          )}
+          role="menu"
+          aria-label="Menu de perfil"
+          data-testid="profile-menu"
+        >
+          <div className="flex items-start gap-3 p-4">
+            <div
+              className={cn(
+                'flex h-12 w-12 items-center justify-center rounded-full text-sm font-semibold',
+                isDarkMode ? 'bg-[#2B2832] text-[#E6E1E5]' : 'bg-[#EADDFF] text-[#381E72]'
+              )}
+              aria-hidden
+            >
+              {initials}
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold leading-tight">{session.user.name}</span>
+              <span className={cn('text-xs', palette.mutedText)}>{session.user.email}</span>
+            </div>
+          </div>
+
+          <div className={cn('h-px w-full', isDarkMode ? 'bg-[#49454F]' : 'bg-[#E6E0E9]')} aria-hidden />
+
+          <div className="p-2">
+            <LogoutButton
+              variant="ghost"
+              size="sm"
+              className={cn(
+                'w-full justify-start rounded-2xl px-3 py-2 text-sm font-semibold',
+                palette.motion,
+                palette.focus,
+                isDarkMode ? 'text-[#E6E1E5] hover:bg-[#2B2832]' : 'text-[#1C1B1F] hover:bg-[#F4EFF4]'
+              )}
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

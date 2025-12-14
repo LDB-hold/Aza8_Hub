@@ -1,6 +1,7 @@
 # Páginas e permissões (estado atual – apps/web)
 
 Todas as páginas autenticadas agora seguem o layout Navigation–Body–App Bar (Material Design 3) com Navigation Rail tonal + Top App Bar sticky. A navegação filtra itens por `requiredPermissions`, `toolKey` instalado e host (hub vs portal); o guard exibe “Tool not installed” ou 403 (host/permissão) quando necessário.
+- Top App Bar: busca expandível + menu de perfil (botão estilo `/layout-lab`) abre menu vertical com divider, exibindo nome/e-mail e logout conforme Menus + Divider (MD3).
 
 ## Hosts
 - Hub: `hub.localhost` (ou `hub.aza8.com.br` em produção)
