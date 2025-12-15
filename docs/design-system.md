@@ -24,6 +24,18 @@
 - Cards de métricas e ferramentas seguem [Cards – Material Design 3](https://m3.material.io/components/cards/overview) com estados tonal (surface containers) e chips de status.
 - Activity feed e sessão ativa usam divisões `divide-y` e tipografia `label`/`body` conforme tabela tipográfica MD3 para garantir hierarquia visual clara.
 
+## Dashboard do Hub (MD3)
+- Blocos de métricas usam cards tonal e chips de status conforme [Cards – MD3](https://m3.material.io/components/cards/overview) e [Assist chips – MD3](https://m3.material.io/components/chips/assist-chips) para atalhos rápidos.
+- Alertas operacionais seguem padrão de banners/inline alerts inspirados em [Banner – MD3](https://m3.material.io/components/banners/overview) com ações primária/secundária (“Ver audit”, “Ver tenants afetados”).
+- Estados vazios aplicam guidance de [Empty states – MD3](https://m3.material.io/foundations/content-design/empty-states) com mensagem clara e ação “Recarregar”.
+- Mensagens 403/404/500 mantêm estrutura de [Dialogs/Snackbar – MD3](https://m3.material.io/components/dialogs/overview) para feedback de bloqueio ou erro de carregamento.
+
+## Tenants (lista, criação/edição, detalhe)
+- Filtros e ações rápidas usam [Filter chips – MD3](https://m3.material.io/components/chips/overview) e [Assist chips – MD3](https://m3.material.io/components/chips/assist-chips) para pausar/retomar/arquivar.
+- Listagem segue grade responsiva com cartões ou tabelas densas inspiradas em [Lists – MD3](https://m3.material.io/components/lists/overview) com ícones `material-symbols-rounded` e chips de status.
+- Formulários de criação/edição aplicam [Text fields – MD3](https://m3.material.io/components/text-fields/overview), [Segmented buttons – MD3](https://m3.material.io/components/segmented-buttons/overview) para plano/estado e [Dialogs – MD3](https://m3.material.io/components/dialogs/overview) para confirmações (ex.: arquivar).
+- Estados vazios/erro seguem [Empty states – MD3](https://m3.material.io/foundations/content-design/empty-states); toasts de feedback usam [Snackbars – MD3](https://m3.material.io/components/snackbar/overview).
+
 ## Página pública `/layout-lab` (teste Navigation–Body–App Bar)
 - Estrutura espelha arquitetura Navigation–Body–App Bar com `Navigation Rail` + `Top App Bar (medium)` sticky, referência direta a [Navigation Rail – MD3](https://m3.material.io/components/navigation-rail/overview) e [Top App Bar – MD3](https://m3.material.io/components/top-app-bar/overview).
 - Tokens aplicados (light/dark): background `#FFFBFE` / `#1C1B1F`, surface container `#F3EDF7` / `#141218`, active rail `#6750A4` (light) e `#D0BCFF` (dark), strokes `#E6E0E9` / `#49454F`, texto de apoio `#49454F` / `#CAC4D0`.

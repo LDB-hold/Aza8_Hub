@@ -14,6 +14,18 @@
 - **MEMBER** (PORTAL): dashboard portal + tasks/files (ler/escrever), requests (ler/criar), reports (ler). Sem gestão de time ou billing.
 - **SUPPLIER** (PORTAL): files (ler/escrever), requests (ler). Sem tasks, reports ou gestão de time.
 
+## Gestão de papéis do Hub
+- Página `/hub/rbac` (perm: `HUB_RBAC_VIEW`) lista papéis do Hub e permite criar/editar/arquivar.
+- Criação/edição: definir nome, descrição e selecionar permissões de hub (dashboard, tenants read/write, tenant users read/write, tools manage, rbac view, audit read). Mensagem de sucesso “Papel salvo” e erro “Não foi possível salvar o papel”.
+- Arquivamento: bloqueia se papel estiver associado a usuários ativos; alerta “Remova o papel dos usuários antes de arquivar”.
+- Atribuição: interface de associação papel→usuário do hub; feedback “Papel atribuído/removido” ou “Erro ao atualizar atribuições”.
+- Mensagem de acesso negado: “Acesso restrito ao Hub” quando usuário não possui `HUB_RBAC_VIEW`.
+
+## Escopos
+- Hub: permissões aplicadas no contexto `isHubRequest=true`, sem tenantId.
+- Portal: permissões aplicadas no contexto do tenant ativo; usuário precisa de membership e role do portal.
+- Tools: dependem de `toolKey` instalado no tenant; se ausente, frontend exibe “Tool not installed” e backend pode responder 404/403 conforme guard.
+
 ## Seeds determinísticos
 - Tenants: `alpha`, `beta`.
 - Hub users: `aza8_admin@aza8.com` (AZA8_ADMIN), `aza8_support@aza8.com` (AZA8_SUPPORT).

@@ -21,6 +21,7 @@
 - Tenants: alpha, beta.
 - Ferramentas instaladas por tenant: alpha (todas), beta (tasks/reports).
 - Usuário logado determina o tenant pelo host; não há troca de tenant via payload.
+- Cadastro de tenant (Hub): slug gera host `{slug}.aza8.com.br`; regiões permitidas `us-east-1`/`sa-east-1`; isolamento de dados segue opção padrão/estrito; campos de contato e plano são armazenados junto ao tenant para coerência operacional.
 
 ## Frontend
 - App Router único serve `/hub/*` e `/app/*` no mesmo projeto. Menu e RouteGuard usam `tenantContext` do `/auth/me`.

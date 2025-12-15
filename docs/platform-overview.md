@@ -22,10 +22,13 @@
 - Tenants seeds: `alpha`, `beta`.
 - Usuários seeds: hub (`aza8_admin@aza8.com`, `aza8_support@aza8.com`); portal (owner/manager/member/supplier para alpha; owner/member para beta).
 - Ferramentas instaladas: alpha (tasks/files/requests/reports), beta (tasks/reports habilitadas; files/requests desabilitadas).
+- Auditoria (Hub): filtros por tempo, ator, recurso, ação e tenant; exportação CSV/JSON limitada ao período selecionado; links cruzados para tenants e RBAC.
 
 ## Rotas principais (docs/pages.md detalha)
 - Hub (host `hub.localhost`): `GET /hub/tenants/current` (retorna tenant ativo pelo host), `GET /hub/tenants` (listar; perm `HUB_TENANT_READ`), `POST /hub/tenants` (criar; perm `HUB_TENANT_WRITE`), `GET /hub/tenants/:tenantId/tools` (listar tool installs; perm `HUB_TOOLS_MANAGE`), `PUT /hub/tenants/:tenantId/tools/:toolKey` (habilitar/desabilitar tool; perm `HUB_TOOLS_MANAGE`), `GET /hub/audit` (últimos 50 eventos; perm `HUB_AUDIT_READ`).
 - Portal (host `{tenant}.localhost`): `/app/dashboard`, `/app/tools/{tasks|files|requests|reports}`, `/app/team/{members|invitations}`, `/app/settings/{profile|organization|billing}`, `/app/audit`.
+- Navegação do Hub: rail com itens `Dashboard`, `Tenants`, `RBAC`, `Audit` filtrados por permissão; blocos de feedback/toasts alinhados às ações principais (criar/editar tenant, atribuir papel, exportar audit).
+- Mensagens de erro/feedback: 403 de host/permissão (“Acesso restrito ao Hub”), estados vazios com instrução de ajuste de filtros, erro 500 com ação “Recarregar” e link para audit.
 
 ## Execução local (resumo)
 1) `pnpm install && pnpm prisma:generate`
