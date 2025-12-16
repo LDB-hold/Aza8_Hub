@@ -10,17 +10,17 @@ export declare class TenantsService {
     } | {
         tenant: {
             id: string;
-            createdAt: Date;
-            name: string;
             slug: string;
+            name: string;
+            createdAt: Date;
         };
         context: import("@aza8/core-domain").TenantContext;
     }>;
     listTenants(): Promise<{
         id: string;
-        createdAt: Date;
-        name: string;
         slug: string;
+        name: string;
+        createdAt: Date;
     }[]>;
     createTenant(input: {
         name: string;

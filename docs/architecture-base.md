@@ -2,7 +2,7 @@
 
 ## Overview
 - **Core API (`apps/api-core`)** – NestJS com resolução de tenancy, RBAC, auditoria, Prisma/PostgreSQL, guards compartilhados e camada de ferramentas (tool installs).
-- **Web unificado (`apps/web`)** – Next.js App Router servindo Hub (`/hub/*`) e Portal (`/app/*`), resolvendo o tenant pelo host (`hub.localhost`, `{slug}.localhost`) e consumindo a API com sessões em cookie.
+- **Web unificado (`apps/web`)** – Next.js App Router servindo Hub (`/hub/*`) e Portal (rotas raiz: `/dashboard`, `/tools/*`, `/team/*`, `/settings/*`, `/audit`), resolvendo o tenant pelo host (`hub.localhost`, `{slug}.localhost`) e consumindo a API com sessões em cookie.
 - **Packages (`packages/*`)** – UI kit, tipos de domínio, cliente de auth, utilitários de configuração, presets de lint/tsconfig. Consumidos via path aliases pelos apps.
 
 Veja `docs/platform-overview.md` para o snapshot funcional atual e `docs/development.md` para rodar localmente e aplicar migrations.
@@ -21,6 +21,12 @@ Para mais detalhes de host-based routing, `TenantContext` e padrões de DB, veja
 - Mapeamentos completos de roles/permissões estão em `docs/rbac.md`.
 
 ## Frontend (apps/web)
-- App Router único (`/hub/*` e `/app/*`) com menu/RouteGuard filtrando permissões e ferramentas instaladas.
+- App Router único (`/hub/*` e portal sem prefixo `/app`, usando `/dashboard`, `/tools/*`, `/team/*`, `/settings/*`, `/audit`) com menu/RouteGuard filtrando permissões e ferramentas instaladas.
 - Tenancy derivado do host; headers `x-tenant-slug`/`x-is-hub` circulam entre middleware e API.
 - UI usa `packages/ui`; auth client compartilha hooks para `/auth/me`, etc.
+
+## Revisão v0.1.1 – 2025-12-15
+- Autor: Codex (AI)
+- Escopo: corrigir paths do portal (sem `/app`) e manter alinhamento com roteamento real.
+- Impacto: documentação reflete navegação atual; reduz risco de 404 em QA.
+- Fontes MCP: não utilizado.

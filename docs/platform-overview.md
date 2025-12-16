@@ -9,7 +9,7 @@
 
 ## Componentes
 - **API Core (`apps/api-core`)**: NestJS + Prisma/PostgreSQL; tenancy middleware; Auth/RBAC; endpoints hub (`/hub/*`) e portal (`/portal/*`); seeds determinísticos (tenants alpha/beta, users/roles, ferramentas instaladas).
-- **Web unificado (`apps/web`)**: Next.js App Router servindo `/hub/*` e `/app/*`; resolve tenant pelo host; guarda de rota + menus por permissões/ferramentas instaladas; sessão em cookie; Navigation Rail + Top App Bar (MD3) compartilhados em todas as páginas autenticadas; página pública `/design-system` para referência de tokens/componentes MD3. (Frontends legados `apps/hub-web` e `apps/portal-web` foram removidos.)
+- **Web unificado (`apps/web`)**: Next.js App Router servindo `/hub/*` e Portal sem prefixo `/app` (rotas raiz `/dashboard`, `/tools/*`, `/team/*`, `/settings/*`, `/audit`); resolve tenant pelo host; guarda de rota + menus por permissões/ferramentas instaladas; sessão em cookie; Navigation Rail + Top App Bar (MD3) compartilhados em todas as páginas autenticadas; página pública `/design-system` para referência de tokens/componentes MD3. (Frontends legados `apps/hub-web` e `apps/portal-web` foram removidos.)
 - **Packages (`packages/*`)**: `core-domain` (roles/permissions/tool keys), `auth-client`, `config`, `ui`, presets de tsconfig/eslint.
 
 ## Hosts locais e seeds
@@ -26,7 +26,7 @@
 
 ## Rotas principais (docs/pages.md detalha)
 - Hub (host `hub.localhost`): `GET /hub/tenants/current` (retorna tenant ativo pelo host), `GET /hub/tenants` (listar; perm `HUB_TENANT_READ`), `POST /hub/tenants` (criar; perm `HUB_TENANT_WRITE`), `GET /hub/tenants/:tenantId/tools` (listar tool installs; perm `HUB_TOOLS_MANAGE`), `PUT /hub/tenants/:tenantId/tools/:toolKey` (habilitar/desabilitar tool; perm `HUB_TOOLS_MANAGE`), `GET /hub/audit` (últimos 50 eventos; perm `HUB_AUDIT_READ`).
-- Portal (host `{tenant}.localhost`): `/app/dashboard`, `/app/tools/{tasks|files|requests|reports}`, `/app/team/{members|invitations}`, `/app/settings/{profile|organization|billing}`, `/app/audit`.
+- Portal (host `{tenant}.localhost`): `/dashboard`, `/tools/{tasks|files|requests|reports}`, `/team/{members|invitations}`, `/settings/{profile|organization|billing}`, `/audit`.
 - Navegação do Hub: rail com itens `Dashboard`, `Tenants`, `RBAC`, `Audit` filtrados por permissão; blocos de feedback/toasts alinhados às ações principais (criar/editar tenant, atribuir papel, exportar audit).
 - Mensagens de erro/feedback: 403 de host/permissão (“Acesso restrito ao Hub”), estados vazios com instrução de ajuste de filtros, erro 500 com ação “Recarregar” e link para audit.
 
@@ -40,3 +40,9 @@
 - `AuthGuard` resolve `userContext` (role/permissões) para o host atual; `PermissionsGuard` aplica `@RequirePermissions`.
 - `PrismaService` injeta `tenantId` em modelos escopados (tasks, files, requests, invites, memberships, audit, tool installs) para evitar cross-tenant; `TENANCY_ENFORCEMENT_MODE` (`warn|strict`).
 - Permissões e papéis detalhados em `docs/rbac.md`; navegação/guard de frontend segue essas permissões e ferramenta instalada.
+
+## Revisão v0.1.1 – 2025-12-15
+- Autor: Codex (AI)
+- Escopo: corrigir descrição de rotas do portal (sem `/app`), ajustar rotas públicas e status atual das superfícies.
+- Impacto: alinhamento entre documentação e roteamento real; evita 404 em QA e navegação.
+- Fontes MCP: não utilizado.

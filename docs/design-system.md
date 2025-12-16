@@ -1,6 +1,6 @@
 # Design System – Material Design 3
 - Referências principais: [Styles – Material Design 3](https://m3.material.io/styles) e [Components – Material Design 3](https://m3.material.io/components).
-- Hub (`/hub/*`) e Portal (`/app/*`) seguem o mesmo tema; variações só quando o design system permitir diferença por contexto.
+- Hub (`/hub/*`) e Portal (rotas raiz `/dashboard`, `/tools/*`, `/team/*`, `/settings/*`, `/audit` no host `{tenant}.localhost`) seguem o mesmo tema; variações só quando o design system permitir diferença por contexto.
 - Toda a plataforma deve respeitar 100% da largura disponível da viewport, espelhando o comportamento fluido recomendado em [Responsive layout grid – MD3](https://m3.material.io/foundations/layout/applying-layout/overview).
 - Ícones sempre em `material-symbols-rounded` com estados hover/focus/pressed visíveis.
 - Navigation–Body–App Bar aplicado globalmente: Navigation Rail tonal + Top App Bar (medium) sticky com busca/ação de perfil, seguindo [Navigation Rail](https://m3.material.io/components/navigation-rail/overview) e [Top App Bar](https://m3.material.io/components/top-app-bar/overview).
@@ -46,3 +46,9 @@
 - Autor: Codex (AI)
 - Escopo: Top App Bar autenticado – botão de perfil copiado do `/layout-lab` abrindo menu vertical.
 - Impacto: Menu de perfil segue [Menus + Divider – MD3](/websites/m3_material_io) com surface tonal, foco visível, nome/e-mail e ação de logout; comportamento restrito ao usuário logado, sem impacto em RBAC ou tenancy.
+
+## Atualização v0.1.1 – 2025-12-15
+- Autor: Codex (AI)
+- Escopo: ajustar descrição de rotas (portal sem prefixo `/app`, login em `/login`), mantendo alinhamento com roteamento real.
+- Impacto: documentação de MD3 referencia os caminhos corretos para Hub e Portal; reduz confusão de navegação.
+- Fontes MCP: não utilizado.

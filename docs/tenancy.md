@@ -24,10 +24,16 @@
 - Cadastro de tenant (Hub): slug gera host `{slug}.aza8.com.br`; regiões permitidas `us-east-1`/`sa-east-1`; isolamento de dados segue opção padrão/estrito; campos de contato e plano são armazenados junto ao tenant para coerência operacional.
 
 ## Frontend
-- App Router único serve `/hub/*` e `/app/*` no mesmo projeto. Menu e RouteGuard usam `tenantContext` do `/auth/me`.
+- App Router único serve `/hub/*` e Portal sem prefixo `/app` (rotas raiz `/dashboard`, `/tools/*`, `/team/*`, `/settings/*`, `/audit`) no mesmo projeto. Menu e RouteGuard usam `tenantContext` do `/auth/me`.
 - A navegação filtra itens por `requiredPermissions` e `toolKey`. Quando a ferramenta não está instalada, mostra “Tool not installed” ou 404.
 
 ## Como testar rapidamente
 1. `pnpm --filter @aza8/api-core prisma db push && pnpm --filter @aza8/api-core prisma db seed`.
 2. Rodar API (`pnpm --filter @aza8/api-core dev`) e web (`pnpm --filter @aza8/web dev`).
 3. Hosts: `hub.localhost` para hub; `alpha.localhost` / `beta.localhost` para portals.
+
+## Revisão v0.1.1 – 2025-12-15
+- Autor: Codex (AI)
+- Escopo: alinhar descrição das rotas do portal (sem `/app`) e reforçar navegação/guardas atuais.
+- Impacto: documentação de tenancy reflete paths reais, reduzindo confusão em onboarding e QA.
+- Fontes MCP: não utilizado.

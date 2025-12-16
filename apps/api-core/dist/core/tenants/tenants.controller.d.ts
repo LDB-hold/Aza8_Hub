@@ -12,17 +12,17 @@ export declare class TenantsController {
     } | {
         tenant: {
             id: string;
-            createdAt: Date;
-            name: string;
             slug: string;
+            name: string;
+            createdAt: Date;
         };
         context: import("@aza8/core-domain").TenantContext;
     }>;
     list(): Promise<{
         id: string;
-        createdAt: Date;
-        name: string;
         slug: string;
+        name: string;
+        createdAt: Date;
     }[]>;
     create(dto: CreateTenantDto): Promise<{
         id: string;
